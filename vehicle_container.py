@@ -61,7 +61,7 @@ class _LListBackIter:
             raise StopIteration
 
     def peek(self):
-        self.node.vehicle
+        return self.node.vehicle
 
 class VehicleContainer:
     def __init__(self, nb_lanes):
@@ -118,7 +118,9 @@ class VehicleContainerTest(unittest.TestCase):
         for i in range(n):
             l.insert_front(i)
 
-        for (i,j) in zip(range(n), l):
+        it = iter(l)
+        for (i,j) in zip(range(n), it):
+            assert i == it.peek()
             assert i == j
 
         for i in range(n):
