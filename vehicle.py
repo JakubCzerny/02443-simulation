@@ -2,12 +2,12 @@
 
 class Vehicle:
 
-    def __init__(self):
-        self._position = 0
-        self._lane = 0
-        self._speed = 0
-        self._acceleration = 0
-        self._time_offset = 0
+    def __init__(self, time_offset=0):
+        self.position = 0
+        self.lane = 0
+        self.speed = 0
+        self.acceleration = 0
+        self.time_offset = time_offset
 
     def time_step(self, container, time):
         # after modifying state of vehicle, make sure the data structure is
