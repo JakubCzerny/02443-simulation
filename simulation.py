@@ -24,3 +24,6 @@ class Simulation:
         # car in a certain lane
         if self._time % 5 == 0:
             self._container.insert(Vehicle())
+
+    def __iter__(self):
+        return iter(self._container)

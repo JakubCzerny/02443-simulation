@@ -7,7 +7,7 @@ class VehicleContainer:
     def get_front(self, vehicle):
         pass
 
-    def get_rear(self, vehicle):
+    def get_behind(self, vehicle):
         pass
 
     def get_left(self, vehicle):
@@ -17,7 +17,7 @@ class VehicleContainer:
         pass
 
     def insert(self, vehicle):
-        pass
+        print("vehicle added")
 
     def notify_update(self, vehicle):
         # lane change -> update data structure
@@ -31,5 +31,8 @@ class VehicleContainerIter:
     def __init__(self, container):
         pass
 
-    def next(self):
-        pass
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration
