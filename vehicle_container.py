@@ -3,6 +3,7 @@ from sortedcontainers import SortedList
 
 class VehicleContainer:
     def __init__(self, nb_lanes):
+        self._nb_lanes = nb_lanes
         self._lists = [SortedList() for i in range(nb_lanes)]
 
     def __iter__(self):
@@ -29,12 +30,12 @@ class VehicleContainer:
 
     def first(self, lane):
         if len(self._lists[lane]) > 0:
-            return self._lists[lane][0]
+            return self._lists[lane][-1]
         return None
 
     def last(self, lane):
         if len(self._lists[lane]) > 0:
-            return self._lists[lane][-1]
+            return self._lists[lane][0]
         return None
 
     def get_closest_vehicle(self, vehicle, lane):
@@ -61,10 +62,10 @@ class VehicleContainer:
         self._lists[vehicle.lane].discard(vehicle)
 
     def notify_lane_change(self, vehicle, old_lane):
-        # lane change -> update data structure
-        # if vehicle off the road -> remove from data structure
-        print('lane change for vehicle ', vehicle, ' from ', old_lane, ' to ', \
-                vehicle.lane)
+        i = self._lists[old_lane].index(vehicle)
+        del self._lists[old_lane][i]
+
+        self._lists[vehicle.lane].add(vehicle)
 
 _DUMMY_VEHICLE = Vehicle(0);
 _DUMMY_VEHICLE.position = -999;
@@ -173,8 +174,8 @@ class VehicleContainerTest(unittest.TestCase):
         v1 = container.spawn(Vehicle(0, position=5.0))
         v2 = container.spawn(Vehicle(0))
 
-        self.assertEqual(container.first(0), v2)
-        self.assertEqual(container.last(0), v1)
+        self.assertEqual(container.first(0), v1)
+        self.assertEqual(container.last(0), v2)
 
     def test_despawn(self):
         container = VehicleContainer(1)
@@ -185,6 +186,29 @@ class VehicleContainerTest(unittest.TestCase):
 
         self.assertEqual(container.first(0), v2)
         self.assertEqual(container.last(0), v2)
+
+    def test_notify_lane_change(self):
+        container = VehicleContainer(2)
+        v1 = container.spawn(Vehicle(0, position=5.0))
+        v2 = container.spawn(Vehicle(1, position=7.0))
+
+        self.assertEqual(container.first(0), v1)
+        self.assertEqual(container.first(1), v2)
+        self.assertEqual(container.left(v2), v1)
+        self.assertEqual(container.right(v1), v2)
+        self.assertIsNone(container.front(v1))
+        self.assertIsNone(container.front(v2))
+        self.assertIsNone(container.back(v1))
+        self.assertIsNone(container.back(v2))
+
+        v1.lane = 1
+        container.notify_lane_change(v1, 0)
+
+        self.assertEqual(container.first(1), v2)
+        self.assertEqual(container.last(1), v1)
+        self.assertEqual(container.front(v1), v2)
+        self.assertEqual(container.back(v2), v1)
+        self.assertIsNone(container.first(0))
 
 if __name__ == '__main__':
     unittest.main()
