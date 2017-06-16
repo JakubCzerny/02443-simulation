@@ -123,5 +123,24 @@ class VehicleContainerTest(unittest.TestCase):
         v3.position = 5
         assert container.get_left(v3) is v1
 
+    def test_left_right4(self):
+        container = VehicleContainer(3)
+
+        v1 = container.spawn_in_lane(0)
+        v1.position = 4
+        v2 = container.spawn_in_lane(0)
+        v2.position = 3
+        v3 = container.spawn_in_lane(0)
+        v3.position = 0
+        v4 = container.spawn_in_lane(1)
+        v4.position = 2
+        v5 = container.spawn_in_lane(2)
+        v5.position = 4
+        v6 = container.spawn_in_lane(2)
+        v6.position = 2
+
+        assert container.get_left(v4) is v2
+        assert container.get_right(v4) is v6
+
 if __name__ == '__main__':
     unittest.main()
