@@ -10,3 +10,7 @@ class Vehicle:
 
     def __lt__(self, other):
         return isinstance(other, Vehicle) and self.position < other.position
+
+    def __str__(self):
+        return "Vehicle[lane={}, pos={}, vel={}, acc={}]" \
+            .format(self.lane, self.position, self.velocity, self.acceleration)

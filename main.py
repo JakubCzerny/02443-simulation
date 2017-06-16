@@ -4,7 +4,7 @@ from vehicle import Vehicle
 from simulation import Simulation
 
 def start_sim():
-    sim = Simulation()
+    sim = Simulation(3)
 
     try:
         while True:
