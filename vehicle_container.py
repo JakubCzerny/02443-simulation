@@ -1,34 +1,41 @@
 from vehicle import Vehicle
 from sortedcontainers import SortedList
 
-class SneakyVehicle(Vehicle):
-
-    def __init__(self, lane):
-        self._sneaky_lane = lane
-        super().__init__(lane)
-
 class VehicleContainer:
     def __init__(self, nb_lanes):
-        self._nb_lanes = nb_lanes
         self._lists = [SortedList() for i in range(nb_lanes)]
 
     def __iter__(self):
         return VehicleContainerIter(self)
 
-    def get_front(self, vehicle):
+    def front(self, vehicle):
         i = self._lists[vehicle.lane].index(vehicle)
+        if i+1 >= len(self._lists[vehicle.lane]):
+            return None
         return self._lists[vehicle.lane][i+1]
 
-    def get_back(self, vehicle):
+    def back(self, vehicle):
         i = self._lists[vehicle.lane].index(vehicle)
+        if i == 0:
+            return None
         return self._lists[vehicle.lane][i-1]
 
-    def get_left(self, vehicle):
+    def left(self, vehicle):
         lane = vehicle.lane - 1
         return self.get_closest_vehicle(vehicle, vehicle.lane-1)
 
-    def get_right(self, vehicle):
+    def right(self, vehicle):
         return self.get_closest_vehicle(vehicle, vehicle.lane+1)
+
+    def first(self, lane):
+        if len(self._lists[lane]) > 0:
+            return self._lists[lane][0]
+        return None
+
+    def last(self, lane):
+        if len(self._lists[lane]) > 0:
+            return self._lists[lane][-1]
+        return None
 
     def get_closest_vehicle(self, vehicle, lane):
         if lane in range(self._nb_lanes) and len(self._lists[lane]) > 0:
@@ -44,16 +51,20 @@ class VehicleContainer:
                 return v2
         return None
 
-    def spawn_in_lane(self, lane):
-        vehicle = SneakyVehicle(lane)
-        self._lists[lane].insert(0, vehicle)
+    def spawn(self, vehicle):
+        self._lists[vehicle.lane].insert(0, vehicle)
         return vehicle
 
-    def notify_update(self, vehicle):
+    def despawn(self, vehicle):
+        if not vehicle in self._lists[vehicle.lane]:
+            raise ValueError("vehicle not in container")
+        self._lists[vehicle.lane].discard(vehicle)
+
+    def notify_lane_change(self, vehicle, old_lane):
         # lane change -> update data structure
         # if vehicle off the road -> remove from data structure
-        if not vehicle._sneaky_lane is vehicle.lane:
-            print('lane change for vehicle ', vehicle)
+        print('lane change for vehicle ', vehicle, ' from ', old_lane, ' to ', \
+                vehicle.lane)
 
 _DUMMY_VEHICLE = Vehicle(0);
 _DUMMY_VEHICLE.position = -999;
@@ -92,85 +103,88 @@ class VehicleContainerTest(unittest.TestCase):
     def test_front_behind(self):
         container = VehicleContainer(1)
 
-        v1 = container.spawn_in_lane(0)
-        v1.position = 1 # move v1 forward a little bit
-        v2 = container.spawn_in_lane(0)
+        v1 = container.spawn(Vehicle(0, position=1))
+        v2 = container.spawn(Vehicle(0))
 
-        assert container.get_front(v2) is v1
-        assert container.get_back(v1) is v2
+        self.assertEqual(container.front(v2), v1)
+        self.assertEqual(container.back(v1), v2)
+        self.assertIsNone(container.front(v1))
+        self.assertIsNone(container.back(v2))
 
     def test_left_right1(self):
         container = VehicleContainer(3)
 
-        v1 = container.spawn_in_lane(0)
-        v2 = container.spawn_in_lane(1)
+        v1 = container.spawn(Vehicle(0))
+        v2 = container.spawn(Vehicle(1))
 
-        assert container.get_left(v2) is v1
-        assert container.get_right(v1) is v2
+        self.assertEqual(container.left(v2), v1)
+        self.assertEqual(container.right(v1), v2)
 
     def test_left_right2(self):
         container = VehicleContainer(2)
 
-        v1 = container.spawn_in_lane(0)
-        v1.position = 2 # move v1 forward
-        v2 = container.spawn_in_lane(0)
-        v2.position = 1 # move v2 forward
-        v3 = container.spawn_in_lane(1)
+        v1 = container.spawn(Vehicle(0, position=2))
+        v2 = container.spawn(Vehicle(0, position=1))
+        v3 = container.spawn(Vehicle(1))
 
-        assert container.get_left(v3) is v2
-        assert container.get_front(v2) is v1
-        assert container.get_left(v1) is None
-        assert container.get_right(v1) is v3
-        assert container.get_right(v2) is v3
+        self.assertEqual(container.left(v3), v2)
+        self.assertEqual(container.front(v2), v1)
+        self.assertEqual(container.right(v1), v3)
+        self.assertEqual(container.right(v2), v3)
+        self.assertIsNone(container.left(v1))
 
     def test_left_right3(self):
         container = VehicleContainer(2)
 
-        v1 = container.spawn_in_lane(0)
-        v1.position = 5
-        v2 = container.spawn_in_lane(0)
-        v2.position = 1
-        v3 = container.spawn_in_lane(1)
-        v3.position = 2
+        v1 = container.spawn(Vehicle(0, position=5))
+        v2 = container.spawn(Vehicle(0, position=1))
+        v3 = container.spawn(Vehicle(1, position=2))
 
-        assert container.get_left(v3) is v2
+        self.assertEqual(container.left(v3), v2)
         v3.position = 5
-        assert container.get_left(v3) is v1
+        self.assertEqual(container.left(v3), v1)
 
     def test_left_right4(self):
         container = VehicleContainer(3)
 
-        v1 = container.spawn_in_lane(0)
-        v1.position = 4
-        v2 = container.spawn_in_lane(0)
-        v2.position = 3
-        v3 = container.spawn_in_lane(0)
-        v3.position = 0
-        v4 = container.spawn_in_lane(1)
-        v4.position = 2
-        v5 = container.spawn_in_lane(2)
-        v5.position = 4
-        v6 = container.spawn_in_lane(2)
-        v6.position = 2
+        v1 = container.spawn(Vehicle(0, position=4))
+        v2 = container.spawn(Vehicle(0, position=3))
+        v3 = container.spawn(Vehicle(0, position=0))
+        v4 = container.spawn(Vehicle(1, position=2))
+        v5 = container.spawn(Vehicle(2, position=4))
+        v6 = container.spawn(Vehicle(2, position=2))
 
-        assert container.get_left(v4) is v2
-        assert container.get_right(v4) is v6
+        self.assertEqual(container.left(v4), v2)
+        self.assertEqual(container.right(v4), v6)
 
     def test_iter(self):
         container = VehicleContainer(3)
-        v1 = container.spawn_in_lane(0)
-        v1.position = 4
-        v2 = container.spawn_in_lane(0)
-        v2.position = 3
-        v3 = container.spawn_in_lane(0)
-        v3.position = 0
-        v4 = container.spawn_in_lane(1)
-        v4.position = 2
-        v5 = container.spawn_in_lane(2)
-        v5.position = 1
+        v1 = container.spawn(Vehicle(0, position=4))
+        v2 = container.spawn(Vehicle(0, position=3))
+        v3 = container.spawn(Vehicle(0, position=0))
+        v4 = container.spawn(Vehicle(1, position=2))
+        v5 = container.spawn(Vehicle(2, position=1))
 
         for v, w in zip([v1, v2, v4, v5, v3], iter(container)):
-            assert v is w
+            self.assertEqual(v, w)
+
+    def test_first_last(self):
+        container = VehicleContainer(1)
+        v1 = container.spawn(Vehicle(0, position=5.0))
+        v2 = container.spawn(Vehicle(0))
+
+        self.assertEqual(container.first(0), v2)
+        self.assertEqual(container.last(0), v1)
+
+    def test_despawn(self):
+        container = VehicleContainer(1)
+        v1 = container.spawn(Vehicle(0, position=5.0))
+        v2 = container.spawn(Vehicle(0))
+
+        container.despawn(v1)
+
+        self.assertEqual(container.first(0), v2)
+        self.assertEqual(container.last(0), v2)
 
 if __name__ == '__main__':
     unittest.main()

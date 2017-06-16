@@ -4,13 +4,14 @@ from vehicle import Vehicle
 from simulation import Simulation
 
 def start_sim():
-    sim = Simulation(3)
+    time_delta = 0.1 # << seconds, vv meters
+    sim = Simulation(nb_lanes=3, road_len=100)
 
     try:
         while True:
-            sim.time_step()
+            sim.time_step(time_delta)
             # call animation stuff
-            time.sleep(0.2)
+            time.sleep(time_delta)
     except KeyboardInterrupt:
         print()
         print("Simulation interrupted.")
