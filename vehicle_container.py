@@ -46,7 +46,7 @@ class VehicleContainer:
 
     def spawn_in_lane(self, lane):
         vehicle = SneakyVehicle(lane)
-        self._lists[lane].add(vehicle)
+        self._lists[lane].insert(0, vehicle)
         return vehicle
 
     def notify_update(self, vehicle):
@@ -55,17 +55,31 @@ class VehicleContainer:
         if not vehicle._sneaky_lane is vehicle.lane:
             print('lane change for vehicle ', vehicle)
 
-class VehicleContainerIter:
+_DUMMY_VEHICLE = Vehicle(0);
+_DUMMY_VEHICLE.position = -999;
 
+class VehicleContainerIter:
     def __init__(self, container):
         self._container = container
-        self._iters = [iter(l) for l in container._lists]
+        self._iters = [reversed(l) for l in container._lists]
+        self._values = [_next_aux(it) for it in self._iters]
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        raise StopIteration
+        mi, mv = max(enumerate(self._values), key=lambda t: t[1])
+        if mv is _DUMMY_VEHICLE:
+            raise StopIteration
+
+        self._values[mi] = _next_aux(self._iters[mi])
+        return mv
+
+def _next_aux(it):
+    try:
+        return it.__next__()
+    except StopIteration:
+        return _DUMMY_VEHICLE
 
 ###########################################################
 #                       UNIT TESTS                        #
@@ -141,6 +155,22 @@ class VehicleContainerTest(unittest.TestCase):
 
         assert container.get_left(v4) is v2
         assert container.get_right(v4) is v6
+
+    def test_iter(self):
+        container = VehicleContainer(3)
+        v1 = container.spawn_in_lane(0)
+        v1.position = 4
+        v2 = container.spawn_in_lane(0)
+        v2.position = 3
+        v3 = container.spawn_in_lane(0)
+        v3.position = 0
+        v4 = container.spawn_in_lane(1)
+        v4.position = 2
+        v5 = container.spawn_in_lane(2)
+        v5.position = 1
+
+        for v, w in zip([v1, v2, v4, v5, v3], iter(container)):
+            assert v is w
 
 if __name__ == '__main__':
     unittest.main()

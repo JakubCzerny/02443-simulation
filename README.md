@@ -1,8 +1,10 @@
 # 02443-simulation
 
 
-# Dependencies
+## Dependencies
 
 `pip install numpy`
+
 `pip install pygame`
+
 `pip install sortedcontainers`
