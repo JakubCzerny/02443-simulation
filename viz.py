@@ -82,7 +82,7 @@ class Car(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.speed = np.random.randint(2,6)
         self.lane = 0
-        self.desiredlane = None
+        self.desiredlane = 0
         self.minfrontdist = 40
         
  
@@ -101,19 +101,23 @@ lane_width = road_width / 3
 screen = pygame.display.set_mode([screen_width, screen_height])
 #Keep track of the "center of the lanes" not that rect are drawn from upper eft
 #so we keep track of which upperleft_x corrosponds to a car in the middle
-lane_center = [5 + (lane_width - 25)/2, 5 + lane_width + (lane_width - 25)/2, 5 + 2* lane_width + (lane_width - 25)/2] 
+lane_center = [5 + (lane_width - 26)/2, 5 + lane_width + (lane_width - 26)/2, 5 + 2* lane_width + (lane_width - 26)/2] 
+
 
 FPS = 30
  
 # This is a list of 'sprites.' Each block in the program is
 # added to this list. The list is managed by a class called 'Group.'
 car_list = pygame.sprite.Group()
+car_list2 = pygame.sprite.Group()
+car_list3 = pygame.sprite.Group()
 waiting_list = pygame.sprite.Group()
- 
+
+
 #Make waiting cars (out of screen)
 for i in range(3):
     # This represents a block
-    car = Car(BLACK, 25, 40)
+    car = Car(BLACK, 26, 40)
  
     # Set a random location for the block
     car.rect.x = lane_center[i]
@@ -123,23 +127,6 @@ for i in range(3):
     # Add the block to the list of objects
     waiting_list.add(car)
 
-"""
-for i in range(4):
-    # This represents a block
-    car = Car(BLACK, 25, 40)
- 
-    # Set a random location for the block
-    car.lane = np.random.randint(1,2)
-    car.rect.x = lane_center[car.lane]
-    car.rect.y = random.randrange(screen_height)
- 
-    # Add the block to the list of objects
-    car_list.add(car)
-"""
-
-# Create a RED player block
-#player = Block(RED, 20, 15)
-#all_sprites_list.add(player)
  
 # Loop until the user clicks the close button.
 done = False
@@ -169,7 +156,8 @@ while not done:
             car_list.add(waiting_car)
             waiting_car.remove(waiting_list)
             car = Car(BLACK, 25, 40)
-            car.lane = np.random.randint(1,2)
+            car.lane = np.random.randint(0,3)
+            car.desiredlane = car.lane
             car.rect.x = lane_center[car.lane]
             car.rect.y = screen_height + 40
             waiting_list.add(car)
@@ -185,9 +173,13 @@ while not done:
         #Move car foward in steps of its speed
         car.rect.y -= car.speed
         
+        ##### FRONT CHECK ############ WORKS
+        # Create new list with all other cars in it
+        car_list2.empty()
         car_list2 = car_list.copy()
         car_list2.remove(car) #Remove from the list so we can check collision
         
+        #Put the car 0.5 car in front and see if it collides with any other car
         car.rect.top -= car.rect.height*0.5
         car_blocker = (pygame.sprite.spritecollideany(car, car_list2, collided = None))
         car.rect.top += car.rect.height*0.5
@@ -196,26 +188,35 @@ while not done:
             car.rect.y += car.speed
             #Set the speed to the speed of the car ahead
             car.speed = car_blocker.speed
+             
+     
         
         
         
-        
-        
-        
+        #### LANE CHANGING ###################### #Changes lange 2/3 down the road
         #Change lane at 2/3 the road
-        if car.rect.y < screen_height/3:
+        if (car.rect.y < screen_height/3):
             car.desiredlane = 0
             
-           
-        #Begin changing lane
-        if (car.desiredlane != None) and (car.desiredlane != car.lane):
+        #### Check lane ######################### Doesn't work fully, still dodgy
+        if car.rect.left in lane_center:
+            car.rect = pygame.rect.Rect(car.rect[0] - lane_width, car.rect[1] + 40*0.5, car.rect[2], car.rect[3] + 40*0.5)
+            #car_list3.add(car)
+            #car_list3.draw(screen)
+            check = (pygame.sprite.spritecollideany(car, car_list2, collided = None)) == None
+            car.rect = pygame.rect.Rect(car.rect[0] + lane_width, car.rect[1] - 40*0.5, car.rect[2], car.rect[3] - 40*0.5)
+        else:
+            check = True
+            
+        #Begin changing lane -> Animate a lane change
+        if (car.desiredlane != car.lane) and check:
             if car.desiredlane < car.lane:
                 car.rect.x -= 1
             else:
                 car.rect.x += 1
             if abs(car.rect.x - lane_center[car.desiredlane]) < 2:
                 car.lane = car.desiredlane
-        
+        #########################################
                 
             
     # Draw all the spites
