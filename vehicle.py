@@ -2,14 +2,11 @@
 
 class Vehicle:
 
-    def __init__(self, time_offset=0):
+    def __init__(self, lane):
+        self.lane = lane
         self.position = 0
-        self.lane = 0
-        self.speed = 0
+        self.velocity = 0
         self.acceleration = 0
-        self.time_offset = time_offset
 
-    def time_step(self, container, time):
-        # after modifying state of vehicle, make sure the data structure is
-        # updated according to the changes
-        container.notify_update(self)
+    def __lt__(self, other):
+        return isinstance(other, Vehicle) and self.position < other.position
