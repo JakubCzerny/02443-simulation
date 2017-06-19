@@ -13,14 +13,14 @@ class Vehicle:
 
         self.vd = random.randint(27.0,35.0)
         # self.vd = 35.0 #m/s
-        self.ds = 6.0
-        self.epsilon = 5.0
-        self.k  = 1.5
-        self.k1 = 3.0
-        self.k2 = 2.0
+        self.ds = 10.0
+        self.epsilon = random.randint(5,10)
+        self.k  = 1.0
+        self.k1 = 2.0
+        self.k2 = 1.5
         self.a0 = 1.0
-        self.l  = 5.0
-        self.a_max = 1.0
+        self.l  = 8.0
+        self.a_max = 2.0
 
     def __lt__(self, other):
         return isinstance(other, Vehicle) and self.position < other.position
@@ -33,13 +33,11 @@ class Vehicle:
         p = 0
 
         if (self.vd - self.velocity > self.epsilon):
-            # and af <= 0 \
-            if af \
+            if (af \
                 and (not dlf or (dlf > self.k*self.ds)) \
-                and (not dlb or (dlb > self.k*self.ds)):
-                # and (not vlf > vf):
-                p = (self.ds/df)#**(3/4)  # P(left|state)
-
+                and (not dlb or (dlb > self.k*self.ds))) \
+                or (df and df < self.k*self.ds):
+                p = (self.ds/df)**(3/4)  # P(left|state)
         return p
 
     def prob_right(self, db, vrf, drf, drb):
@@ -51,7 +49,7 @@ class Vehicle:
             if db:
                 p = np.sqrt(self.ds/db)  # P(right|state)
             else:
-                p = 1
+                p = 0.25
 
         return p
 
