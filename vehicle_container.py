@@ -54,7 +54,7 @@ class VehicleContainer:
         return self.get_closest_vehicle(vehicle, vehicle.lane+1)
 
     def right_front(self, vehicle):
-        right = self.left(vehicle)
+        right = self.right(vehicle)
         pos = vehicle.position
         pos_right = right.position if right else None
 
