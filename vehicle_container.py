@@ -22,11 +22,50 @@ class VehicleContainer:
         return self._lists[vehicle.lane][i-1]
 
     def left(self, vehicle):
-        lane = vehicle.lane - 1
         return self.get_closest_vehicle(vehicle, vehicle.lane-1)
+
+    def left_front(self, vehicle):
+        left = self.left(vehicle)
+        pos = vehicle._position
+        pos_left = left._position
+
+        if pos_left - pos > 0:
+            return left
+        else:
+            return self.back(left)
+
+    def left_back(self, vehicle):
+        left = self.left(vehicle)
+        pos = vehicle._position
+        pos_left = left._position
+
+        if pos_left - pos < 0:
+            return left
+        else:
+            return self.front(left)
 
     def right(self, vehicle):
         return self.get_closest_vehicle(vehicle, vehicle.lane+1)
+
+    def right_front(self, vehicle):
+        right = self.left(vehicle)
+        pos = vehicle._position
+        pos_right = right._position
+
+        if pos_right - pos > 0:
+            return right
+        else:
+            return self.back(right)
+
+    def right_back(self, vehicle):
+        right = self.right(vehicle)
+        pos = vehicle._position
+        pos_right = right._position
+
+        if pos_right - pos < 0:
+            return right
+        else:
+            return self.front(right)
 
     def first(self, lane):
         if len(self._lists[lane]) > 0:
