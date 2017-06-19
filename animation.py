@@ -21,7 +21,7 @@ class Animation:
 
         pygame.init()
 
-        screen_width = 1200
+        screen_width = 1800
         screen_height = 300
 
         self._scale = screen_width / simulation.road_len   # pixers per meter
