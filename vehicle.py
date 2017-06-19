@@ -27,32 +27,39 @@ class Vehicle:
 
     def prob_left(self, af, vf, df, dlf, vlf, dlb):
         p = 0
-        if (self.vd - self.velocity > self.epsilon) and (af <= 0) \
-            and not (dlf < self.ds) \
-            and not (dlb < self.ds) \
-            and (vlf > vf):
-            p = (self.ds/df)**(3/4)  # P(left|state)
+        if (self.vd - self.velocity > self.epsilon):
+            if not af:
+                p = 0
+            elif (af <= 0) \
+                and (not dlf or not (dlf < self.ds)) \
+                and (not dlb or not (dlb < self.ds)) \
+                and (not vlf or (not vlf > vf)):
+                p = (self.ds/df)**(3/4)  # P(left|state)
 
         return p
 
     def prob_right(self, db, vrf, drf, drb):
         p = 0
         if (self.vd - self.velocity < self.epsilon) \
-            and not (drf < self.k*self.ds) \
-            and not (drb < self.ds) \
-            and (self.velocity <= vrf):
-            p = np.sqrt(self.ds/db)  # P(right|state)
+            and (not drf or not (drf < self.k*self.ds)) \
+            and (not drb or not (drb < self.ds)) \
+            and (not vrf or (self.velocity <= vrf)):
+
+            if db:
+                p = np.sqrt(self.ds/db)  # P(right|state)
+            else:
+                p = 1
 
         return p
 
-    def acceleration(self, vf, df):
+    def calc_acceleration(self, vf, df):
         # NOTE: k2 = 1
 
         # acceleration zone
-        if (df > self.k1*self.ds):
+        if (not df or (df > self.k1*self.ds)):
             if max(0, (self.vd - self.velocity)) == 0:
                 a = 0
-            elif (vd - self.velocity) < self.epsilon:
+            elif (self.vd - self.velocity) < self.epsilon:
                 a = self.a0
             else:
                 a = (self.vd - self.velocity) * self.l
