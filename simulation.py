@@ -79,30 +79,14 @@ class Simulation:
 
         p = random.random()
         p_right = vehicle.prob_right(db, vrf, drf, drb)
-
-        '''
-        if p < p_right and vehicle.lane+1 < self.nb_lanes:
-            self.go_right(vehicle)
-        else:
-            acc = vehicle.calc_acceleration(vf, df)
-
-            if acc != 0:
-                self.update_acceleration(vehicle, acc)
-                self.update_velocity(vehicle, acc, dt)
-            else:
-                p = random.random()
-                p_left = vehicle.prob_left(af, vf, df, dlf, vlf, dlb)
-
-                if p < p_left and vehicle.lane > 0:
-                    self.go_left(vehicle)
-        '''
+        p_left = vehicle.prob_left(af, vf, df, dlf, vlf, dlb)
+        total = p_right + p_left
+        p_right /= total if total != 0 else 1
+        p_left /= total if total != 0 else 1
 
         if p < p_right and vehicle.lane+1 < self.nb_lanes:
             self.go_right(vehicle)
         else:
-            # p = random.random()
-            p_left = vehicle.prob_left(af, vf, df, dlf, vlf, dlb)
-
             if p < p_left and vehicle.lane > 0:
                 self.go_left(vehicle)
 
