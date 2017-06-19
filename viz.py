@@ -24,7 +24,7 @@ from draw_dashed_line import *
  
 # Define some colors
 BLACK = (  0,   0,   0)
-GREY = (100, 100, 100)
+GREY  = (100, 100, 100)
 WHITE = (255, 255, 255)
 RED   = (255,   0,   0)
  
