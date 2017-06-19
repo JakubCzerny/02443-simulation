@@ -18,16 +18,16 @@ class AnimationInterrupt(BaseException):
 
 class Animation:
 
-    def __init__(self, simulation, fps=30):
+    def __init__(self, simulation, conf):
         self._simulation = simulation
-        self.fps = fps
+        self._conf = conf
 
         pygame.init()
 
         self.screen_width = 1800
         self.screen_height = 100
 
-        self._scale = self.screen_width / simulation.road_len   # pixers per meter
+        self._scale = self.screen_width / simulation._conf.road_len   # pixers per meter
 
         self._screen = pygame.display.set_mode([self.screen_width, self.screen_height])
         self._clock = pygame.time.Clock()
@@ -56,12 +56,9 @@ class Animation:
             #self._screen.fill(BLACK, rect=(x1, y1, l, w))
 
         pygame.display.flip()
-        self._clock.tick(self.fps)
+        self._clock.tick(self._conf.fps)
 
     def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 raise AnimationInterrupt
-
-    def delta_time(self):
-        return 1/self.fps
