@@ -1,3 +1,5 @@
+import numpy as np
+
 """ This should not depend on anything else. This is a simple value type. """
 
 class Vehicle:
@@ -64,7 +66,7 @@ class Vehicle:
             else:
                 a = (self.vd - self.velocity) * self.l
         # adaptive zone
-        elif (self.df < self.k1*self.ds) and (self.df > self.k2*self.ds):
+        elif (df < self.k1*self.ds) and (df > self.k2*self.ds):
             if self.velocity > vf:
                 a = (vf - self.velocity) * self.l
             else:

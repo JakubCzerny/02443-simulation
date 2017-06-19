@@ -2,22 +2,22 @@ import time
 
 from vehicle import Vehicle
 from simulation import Simulation
-from visualisation import Visualisation 
+from animation import Animation, AnimationInterrupt
 
 def start_sim():
-    time_delta = 0.1 # << seconds, vv meters
-    sim = Simulation(nb_lanes=3, road_len=100)
-    vis = Visualisation(sim)
+    fps = 30
+    sim = Simulation(nb_lanes=3, road_len=300) # road len in meters
+    anim = Animation(sim, fps)
 
     try:
         while True:
-            sim.time_step(time_delta)   # update simulation step
-            if vis.update():            # update visualisation step
-                break                   # break the outer loop if needed
-            time.sleep(time_delta)      # sleep for some time
-    except KeyboardInterrupt:
+            sim.time_step(anim.delta_time())   # update simulation step
+            anim.draw_frame()                  # update animation
+    except (KeyboardInterrupt, AnimationInterrupt):
         print()
         print("Simulation interrupted.")
+    finally:
+        anim.destroy()
 
 if __name__ == "__main__":
     start_sim()
