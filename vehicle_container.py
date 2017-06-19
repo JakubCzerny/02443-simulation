@@ -26,46 +26,57 @@ class VehicleContainer:
 
     def left_front(self, vehicle):
         left = self.left(vehicle)
-        pos = vehicle._position
-        pos_left = left._position
+        pos = vehicle.position
+        pos_left = left.position if left else None
 
-        if pos_left - pos > 0:
-            return left
+        if pos_left:
+            if pos_left - pos > 0:
+                return left
+            else:
+                return self.back(left)
         else:
-            return self.back(left)
+            return None
 
     def left_back(self, vehicle):
         left = self.left(vehicle)
-        pos = vehicle._position
-        pos_left = left._position
+        pos = vehicle.position
+        pos_left = left.position if left else None
 
-        if pos_left - pos < 0:
-            return left
+        if pos_left:
+            if pos_left - pos < 0:
+                return left
+            else:
+                return self.front(left)
         else:
-            return self.front(left)
+            return None
 
     def right(self, vehicle):
         return self.get_closest_vehicle(vehicle, vehicle.lane+1)
 
     def right_front(self, vehicle):
         right = self.left(vehicle)
-        pos = vehicle._position
-        pos_right = right._position
+        pos = vehicle.position
+        pos_right = right.position if right else None
 
-        if pos_right - pos > 0:
-            return right
+        if pos_right:
+            if pos_right - pos > 0:
+                return right
+            else:
+                return self.back(right)
         else:
-            return self.back(right)
+            return None
 
     def right_back(self, vehicle):
         right = self.right(vehicle)
-        pos = vehicle._position
-        pos_right = right._position
+        pos = vehicle.position
+        pos_right = right.position if right else None
 
-        if pos_right - pos < 0:
-            return right
-        else:
-            return self.front(right)
+        if pos_right:
+            if pos_right - pos < 0:
+                return right
+            else:
+                return self.front(right)
+        return None
 
     def first(self, lane):
         if len(self._lists[lane]) > 0:
