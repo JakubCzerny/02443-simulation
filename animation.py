@@ -54,15 +54,16 @@ class Animation:
 
         for row in range(self._conf.rows):
             y = self._y_offset(row, 0)
-            pygame.draw.line(self._screen, BLACK, (0, y), (sw, y), 3)
             pygame.draw.rect(self._screen, WHITE, (0, y, sw, sc*self._conf.nb_lanes*LANE_WIDTH))
-
+            
+            pygame.draw.line(self._screen, BLACK, (0, y), (sw, y), 3)
+            
             for lane in range(1, self._conf.nb_lanes):
                 y += LANE_WIDTH*sc
                 pygame.draw.line(self._screen, GREY, (0, y), (sw, y), 1)
 
             y += LANE_WIDTH*sc
-            pygame.draw.line(self._screen, BLACK, (0, y), (sw, y), 2)
+            pygame.draw.line(self._screen, BLACK, (0, y), (sw, y), 3)
 
     def _draw_vehicle(self, v):
         if not v.type in self._vtypes:
