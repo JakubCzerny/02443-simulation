@@ -8,7 +8,6 @@ class Config:
     fps = 60
     nb_lanes = 3
     road_len = 350          # meter
-    spawn_rate = 5      # cars per second
     spawn_rate = 3.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     safe_distance = 7.0     # meter
