@@ -7,6 +7,9 @@ class Vehicle:
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
+
+        self.type = 'car'
+
         self.emergency = 0
 
     def __lt__(self, other):

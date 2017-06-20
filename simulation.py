@@ -36,8 +36,8 @@ class Simulation:
                     return
 
             vehicle = HumanVehicle(lane)
-            vehicle.velocity = np.random.uniform( \
-                    self._conf.speed_range[0],    \
+            vehicle.velocity = np.random.uniform(
+                    self._conf.speed_range[0],
                     self._conf.speed_range[1])
             self._container.spawn(vehicle)
             
