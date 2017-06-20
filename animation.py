@@ -6,6 +6,7 @@ from vehicle import Vehicle
 WHITE = (255,255,255)
 BLACK = (0,  0,  0   )
 GREY  = (100, 100, 100)
+RED = (255, 0, 0)
 
 CAR_WIDTH = 2   # meters
 CAR_LENGTH = 4  # meters
@@ -37,6 +38,7 @@ class Animation:
         self.image = pygame.image.load('car_side.png')
         self.image = pygame.transform.scale(self.image, (int(l),int(w)))
 
+
     def destroy(self):
         pygame.quit()
 
@@ -49,12 +51,15 @@ class Animation:
         draw_dashed_line(self._screen, BLACK, (0, LANE_WIDTH*2*self._scale+CONST), (self.screen_width, LANE_WIDTH*2*self._scale+CONST), dash_length = 3)
         for v in self._simulation:
             x1 = (v.position-CAR_LENGTH/2.0)*self._scale
-            y1 = (v.lane*LANE_WIDTH+LANE_WIDTH)*self._scale
+            y1 = (v.animlane*LANE_WIDTH+LANE_WIDTH)*self._scale
             self.rect = self.image.get_rect()
             self.rect.x = x1
             self.rect.y = y1
-            self._screen.blit(self.image, self.rect)
-            #self._screen.fill(BLACK, rect=(x1, y1, l, w))
+
+            if v.emergency > 0:
+                self._screen.fill(RED, rect=self.rect)
+            else:
+                self._screen.blit(self.image, self.rect)
 
         pygame.display.flip()
         self._clock.tick(self._conf.fps)

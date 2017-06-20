@@ -5,7 +5,7 @@ from simulation import Simulation
 from animation import Animation, AnimationInterrupt
 
 class Config:
-    fps = 30
+    fps = 60
     nb_lanes = 3
     road_len = 350          # meter
     spawn_rate = 5.0        # cars per second

@@ -7,6 +7,7 @@ class Vehicle:
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
+        self.emergency = 0
 
     def __lt__(self, other):
         return isinstance(other, Vehicle) and self.position < other.position
@@ -26,10 +27,13 @@ class Vehicle:
             self.acceleration = front.acceleration
             self.position = front.position - .8*conf.safe_distance
 
+            self.emergency = conf.fps
+
             print('WARNING: Emergency speed change -- fix driver behavior in', \
                     self.__class__.__name__)
         else:
             self.position = new_position
+            self.emergency = max(0, self.emergency-1)
 
 
 
@@ -56,6 +60,8 @@ class HumanVehicle(Vehicle):
 
         self.desired_velocity = np.random.uniform(25.0, 35.0)
         self.epsilon = np.random.uniform(5.0, 10.0) # sensitivity to speed up
+
+        self.animlane = self.lane
 
     def update(self, conf, container, dt):
         # First update position using previous acc/vel...
@@ -94,6 +100,15 @@ class HumanVehicle(Vehicle):
         elif p < p_left and self.lane > 0:
             self.lane -= 1
             container.notify_lane_change(self, self.lane+1)
+
+        ### ANIMATION FOR LANE CHANGING
+        if abs(self.animlane - self.lane) > 0.1:
+            if self.animlane < self.lane:
+                self.animlane = round(self.animlane + 0.1, 1)
+            else:
+                self.animlane = round(self.animlane - 0.1, 1)
+        else:
+            self.animlane = self.lane
 
         acc = self.calc_acceleration(conf, vf, df)
 
@@ -150,7 +165,7 @@ class HumanVehicle(Vehicle):
         # braking zone
         else:
             if df < conf.safe_distance:
-                a = -2*HV_AMAX
+                a = -3*HV_AMAX
             elif self.velocity > vf:
                 a = (-HV_AMAX / conf.safe_distance * df + HV_AMAX) # always negative
             else: # try these one at a time and see what works best!

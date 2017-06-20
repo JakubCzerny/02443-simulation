@@ -12,8 +12,7 @@ class Simulation:
     def time_step(self, dt):
         # loop over all vehicles, update all vehicles
         # remove vehicles that are dead
-        it = iter(self._container)
-        for v in it:
+        for v in self:
             self.time_step_vehicle(v, dt)
 
         self.try_spawn_vehicle()
