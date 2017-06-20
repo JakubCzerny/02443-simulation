@@ -32,6 +32,11 @@ class Animation:
         self._screen = pygame.display.set_mode([self.screen_width, self.screen_height])
         self._clock = pygame.time.Clock()
 
+        l = CAR_LENGTH*self._scale
+        w = CAR_WIDTH*self._scale
+        self.image = pygame.image.load('car_side.png')
+        self.image = pygame.transform.scale(self.image, (int(l),int(w)))
+
     def destroy(self):
         pygame.quit()
 
@@ -45,10 +50,6 @@ class Animation:
         for v in self._simulation:
             x1 = (v.position-CAR_LENGTH/2.0)*self._scale
             y1 = (v.lane*LANE_WIDTH+LANE_WIDTH)*self._scale
-            l = CAR_LENGTH*self._scale
-            w = CAR_WIDTH*self._scale
-            self.image = pygame.image.load('car_side.png')
-            self.image = pygame.transform.scale(self.image, (int(l),int(w)))
             self.rect = self.image.get_rect()
             self.rect.x = x1
             self.rect.y = y1
