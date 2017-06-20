@@ -21,3 +21,5 @@
 `vehicle_container.py`: The vehicle as an object, with dimensions and methods for getting relevant neighbors
 
 `visualisation.py`: pygame base file for setting up the board and doing events
+
+`viz.py`: Old visualisation file that has logic within the visualisation itself, look at it for inspiration, uses pygames sprites
