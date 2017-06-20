@@ -2,21 +2,22 @@ import time
 
 from vehicle import Vehicle
 from simulation import Simulation
-from animation import Animation, AnimationInterrupt, max_road_len
+from animation import max_road_len
+from animation_opengl import Animation, AnimationInterrupt
 
 class Config:
     fps = 60
     nb_lanes = 3
     road_len = -1           # meter, set as derived value
-    spawn_rate = 1.2       # cars per second
+    spawn_rate = 2.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     safe_distance = 7.0     # meter
 
     # Animation
     window_width = 1800
     window_height = 600
-    rows = 4               # number of wrapped roads vertically
-    scale = 8              # pixels per meter
+    rows = 4                # number of wrapped roads vertically
+    scale = 8               # pixels per meter
 
     def __init__(self):
         if self.road_len == -1:
