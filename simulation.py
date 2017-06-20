@@ -17,7 +17,7 @@ class Simulation:
         for v in self:
             self.time_step_vehicle(v, dt)
 
-        self.try_spawn_vehicle2()
+        self.try_spawn_vehicle()
         self._simulationTime += dt
 
     def time_step_vehicle(self, vehicle, dt):
@@ -26,22 +26,8 @@ class Simulation:
         if vehicle.position > self._conf.road_len:
             self._container.despawn(vehicle)
 
-    def try_spawn_vehicle(self):
-        if np.random.rand() < self._conf.spawn_rate / self._conf.fps:
-            lane = np.random.randint(self._conf.nb_lanes)
-
-            if self._container.last(lane):
-                last = self._container.last(lane)
-                if last.position < self._conf.safe_distance:
-                    return
-
-            vehicle = HumanVehicle(lane)
-            vehicle.velocity = np.random.uniform(
-                    self._conf.speed_range[0],
-                    self._conf.speed_range[1])
-            self._container.spawn(vehicle)
             
-    def try_spawn_vehicle2(self):
+    def try_spawn_vehicle(self):
         if self._simulationTime >= self._tToNextVec:
             lane = np.random.randint(self._conf.nb_lanes)
 
