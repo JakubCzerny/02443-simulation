@@ -27,6 +27,7 @@ class Animation:
         self._pixels_per_meter = conf.window_width / self._row_length    # px/meter
 
         self._display = (conf.window_width, int(self._world_height*self._pixels_per_meter))
+        self._confirm_display()
         self._clock = pygame.time.Clock()
         self._screen = pygame.display.set_mode(self._display, DOUBLEBUF|OPENGL)
 
@@ -35,6 +36,14 @@ class Animation:
         glScalef(2.0, 2.0, 1.0)
         glScalef(1/self._row_length, 1/self._world_height, 1.0)
         glClearColor(1.0, 1.0, 1.0, 1.0)
+
+    def _confirm_display(self):
+        if self._display[1] > 1080:
+            r = input('Confirm window height {}? '.format(self._display[1]))
+            if r != 'y':
+                print('Aborting...')
+                self.destroy()
+                exit(1)
 
     def destroy(self):
         pygame.quit()

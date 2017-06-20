@@ -13,16 +13,12 @@ class Config:
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     safe_distance = 7.0     # meter
 
+    speedup = 1.0          # sec in animation = speedup*sec in simulation
+
     # Animation
     window_width = 1800
-    window_height = 600
     rows = 3                # number of wrapped roads vertically
     scale = 8               # pixels per meter
-
-    def __init__(self):
-        if self.road_len == -1:
-            self.road_len = max_road_len(self)
-            print('road_len set to', self.road_len)
 
 def start_sim():
     conf = Config()
@@ -32,7 +28,7 @@ def start_sim():
 
     try:
         while True:
-            sim.time_step(dt)
+            sim.time_step(conf.speedup*dt)
             anim.draw_frame()
     except (KeyboardInterrupt, AnimationInterrupt):
         print()
