@@ -49,7 +49,7 @@ class Animation:
         draw_dashed_line(self._screen, BLACK, (0, LANE_WIDTH*2*self._scale+CONST), (self.screen_width, LANE_WIDTH*2*self._scale+CONST), dash_length = 3)
         for v in self._simulation:
             x1 = (v.position-CAR_LENGTH/2.0)*self._scale
-            y1 = (v.lane*LANE_WIDTH+LANE_WIDTH)*self._scale
+            y1 = (v.animlane*LANE_WIDTH+LANE_WIDTH)*self._scale
             self.rect = self.image.get_rect()
             self.rect.x = x1
             self.rect.y = y1

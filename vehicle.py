@@ -57,6 +57,8 @@ class HumanVehicle(Vehicle):
         self.desired_velocity = np.random.uniform(25.0, 35.0)
         self.epsilon = np.random.uniform(5.0, 10.0) # sensitivity to speed up
 
+        self.animlane = self.lane
+
     def update(self, conf, container, dt):
         # First update position using previous acc/vel...
         super().update(conf, container, dt)
@@ -97,6 +99,15 @@ class HumanVehicle(Vehicle):
         elif p < p_left and self.lane > 0:
             self.lane -= 1
             container.notify_lane_change(self, self.lane+1)
+
+        ### ANIMATION FOR LANE CHANGING
+        if abs(self.animlane - self.lane) > 0.1:
+            if self.animlane < self.lane:
+                self.animlane = round(self.animlane + 0.1, 1)
+            else:
+                self.animlane = round(self.animlane - 0.1, 1)
+        else:
+            self.animlane = self.lane
 
         acc = self.calc_acceleration(conf, vf, df)
 
