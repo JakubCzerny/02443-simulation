@@ -13,7 +13,7 @@ class Vehicle:
         self.emergency = 0
 
     def __lt__(self, other):
-        return isinstance(other, Vehicle) and self.position < other.position
+        return self.position < other.position
 
     def __str__(self):
         return "Vehicle[lane={:2n}, pos={:06.2f}, vel={:06.2f}, acc={:06.2f}]" \
