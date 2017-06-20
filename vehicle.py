@@ -7,6 +7,7 @@ class Vehicle:
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
+        self.emergency = 0
 
     def __lt__(self, other):
         return isinstance(other, Vehicle) and self.position < other.position
@@ -26,10 +27,13 @@ class Vehicle:
             self.acceleration = front.acceleration
             self.position = front.position - .8*conf.safe_distance
 
+            self.emergency = conf.fps
+
             print('WARNING: Emergency speed change -- fix driver behavior in', \
                     self.__class__.__name__)
         else:
             self.position = new_position
+            self.emergency = max(0, self.emergency-1)
 
 
 
