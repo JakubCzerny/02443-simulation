@@ -10,7 +10,7 @@ class Config:
     road_len = 350          # meter
     spawn_rate = 5.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
-    safe_distance = 10      # meter
+    safe_distance = 10.0    # meter
 
 def start_sim():
     conf = Config()
