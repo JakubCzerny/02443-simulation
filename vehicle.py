@@ -45,8 +45,8 @@ class Vehicle:
 ###############################################################################
 
 HV_K    = 1.5 # distance factor
-HV_K1   = 3.0  # scaling factors on safety distance ds to separate space to...
-HV_K2   = 1.8  # ... car in front into behavioral zones.
+HV_K1   = 4.5  # scaling factors on safety distance ds to separate space to...
+HV_K2   = 3.0  # ... car in front into behavioral zones.
 HV_A0   = 1.0  # small constant acceleration to reach desired velocity
 HV_L    = 3.0  # no idea what this is
 HV_AMAX = 3.0  # maximum acceleration (0-100 in about 7 seconds)
@@ -62,7 +62,7 @@ class HumanVehicle(Vehicle):
         super().__init__(lane, position)
 
         self.desired_velocity = np.random.uniform(25.0, 35.0)
-        self.epsilon = np.random.uniform(5.0, 10.0) # sensitivity to speed up
+        self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
 
     def update(self, conf, container, dt):
@@ -121,13 +121,13 @@ class HumanVehicle(Vehicle):
     def prob_left(self, conf, af, vf, df, dlf, vlf, dlb):
         p = 0
 
-        if (df and df < 4*HV_K*conf.safe_distance \
+        if (df and df < 5*HV_K*conf.safe_distance \
             and (self.desired_velocity - self.velocity > self.epsilon or self.desired_velocity - vf > self.epsilon) \
             and (not dlf or (dlf > 2/3*HV_K*conf.safe_distance)) \
             and (not dlb or (dlb > 2/3*HV_K*conf.safe_distance)) \
-            and (not vlf or self.velocity <= vlf or dlf >= 2*HV_K*conf.safe_distance)):
-            # p = (conf.safe_distance/df)**(3/4)  # P(left|state)
-            p = np.sqrt(conf.safe_distance/df)  # P(left|state)
+            and (not vlf or (self.velocity <= vlf or dlf >= HV_K*conf.safe_distance))):
+            p = (conf.safe_distance/df)**(3/4)  # P(left|state)
+            # p = np.sqrt(conf.safe_distance/df)  # P(left|state)
         return p
 
     def prob_right(self, conf, df, vf, db, vrf, drf, drb):
@@ -135,9 +135,9 @@ class HumanVehicle(Vehicle):
         if (self.desired_velocity - self.velocity < self.epsilon) \
             and (not drf or (drf > HV_K*conf.safe_distance)) \
             and (not drb or (drb > HV_K*conf.safe_distance)) \
-            and (not vrf or self.velocity <= vrf or drf >= HV_K*conf.safe_distance):
+            and (not vrf or (self.velocity <= vrf or drf >= HV_K*conf.safe_distance)):
 
-            p=0.75
+            p = 0.8
             # if db:
             #     p = np.sqrt(conf.safe_distance/db)  # P(right|state)
             # else:
@@ -170,7 +170,7 @@ class HumanVehicle(Vehicle):
         # braking zone
         else:
             if df < HV_K*conf.safe_distance:
-                a = -HV_AMAX
+                a = -2*HV_AMAX
             elif self.velocity > vf:
                 a = (-HV_AMAX / conf.safe_distance * df + HV_AMAX) # always negative
             else: # try these one at a time and see what works best!
