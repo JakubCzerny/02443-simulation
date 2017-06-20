@@ -154,7 +154,7 @@ class HumanVehicle(Vehicle):
         # braking zone
         else:
             if df < conf.safe_distance:
-                a = -2*HV_AMAX
+                a = -3*HV_AMAX
             elif self.velocity > vf:
                 a = (-HV_AMAX / conf.safe_distance * df + HV_AMAX) # always negative
             else: # try these one at a time and see what works best!
