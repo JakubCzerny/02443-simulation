@@ -45,11 +45,11 @@ class Vehicle:
 ###############################################################################
 
 HV_K    = 1.5  # distance factor
-HV_K1   = 5.0  # scaling factors on safety distance ds to separate space to...
-HV_K2   = 2.5  # ... car in front into behavioral zones.
+HV_K1   = 2.5  # scaling factors on safety distance ds to separate space to...
+HV_K2   = 1.8  # ... car in front into behavioral zones.
 HV_A0   = 1.0  # small constant acceleration to reach desired velocity
 HV_L    = 1.0  # no idea what this is
-HV_AMAX = 3.0  # maximum acceleration (0-100 in about 7 seconds)
+HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
 HV_BRAKING = 9.0
 
 # More names
@@ -63,7 +63,7 @@ class HumanVehicle(Vehicle):
         super().__init__(lane, position)
 
         self.desired_velocity = np.random.uniform(25.0, 35.0)
-        self.safe_time = 0.20 # seconds, 7m/(30m/s) = 0.23333... s
+        self.safe_time = 0.8 # seconds, 7m/(30m/s) = 0.23333... s
         self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
         self.previous_time = time.time()
@@ -73,7 +73,7 @@ class HumanVehicle(Vehicle):
         super().update(conf, container, dt)
 
         # ... then update safe distance
-        self.safe_distance = self.velocity * self.safe_time
+        self.safe_distance = max(conf.extremely_safe_distance, self.velocity * self.safe_time)
         # self.safe_distance = 7
 
         # ... then update acc/vel itself
@@ -125,7 +125,7 @@ class HumanVehicle(Vehicle):
         else:
             self.animlane = self.lane
 
-        acc = self.calc_acceleration(conf, vf, df)
+        acc = self.calc_acceleration(conf, af, vf, df)
 
         self.velocity = max(0, self.velocity + acc*dt)
         self.velocity = min(self.desired_velocity, self.velocity)
@@ -134,12 +134,12 @@ class HumanVehicle(Vehicle):
     def prob_left(self, conf, af, vf, df, dlf, vlf, dlb, vlb):
         p = 0
 
-        if (df and df < 2*HV_K1*self.safe_distance \
+        if (df and df < HV_K1*self.safe_distance \
             and (self.desired_velocity - self.velocity > self.epsilon or self.desired_velocity - vf > self.epsilon) \
             and (not dlf or (dlf > HV_K2*self.safe_distance)) \
             and (not dlb or (dlb > HV_K2*self.safe_distance)) \
-            and (not vlf or (self.velocity <= vlf or dlf >= HV_K2*self.safe_distance))
-            and (not vlb or (self.velocity >= vlb or dlb >= HV_K2*self.safe_distance))):
+            and (not vlf or (self.velocity <= vlf or dlf >= HV_K1*self.safe_distance))
+            and (not vlb or (self.velocity >= vlb or dlb >= HV_K1*self.safe_distance))):
             p = (self.safe_distance/df)**(3/4)  # P(left|state)
             # p = np.sqrt(self.safe_distance/df)  # P(left|state)
         return p
@@ -148,8 +148,8 @@ class HumanVehicle(Vehicle):
         p = 0
 
         if (self.desired_velocity - self.velocity < self.epsilon) \
-            and (not drf or (drf > 2/3*HV_K2*self.safe_distance)) \
-            and (not drb or (drb > 2/3*HV_K2*self.safe_distance)) \
+            and (not drf or (drf > HV_K*self.safe_distance)) \
+            and (not drb or (drb > HV_K*self.safe_distance)) \
             and (not vrf or (self.velocity <= vrf or drf > HV_K1*self.safe_distance)):
 
             if df:
@@ -159,41 +159,41 @@ class HumanVehicle(Vehicle):
 
         return p
 
-    def calc_acceleration(self, conf, vf, df):
-        # NOTE: k2 = 1
+    def calc_acceleration(self, conf, af, vf, df):
 
         # acceleration zone
-        if (not df or (df > HV_K1*self.safe_distance)):
-            if max(0, (self.desired_velocity - self.velocity)) == 0:
+        if (not df or (df >= HV_K1*self.safe_distance)):
+            if self.desired_velocity - self.velocity == 0:
                 a = 0
             elif (self.desired_velocity - self.velocity) < self.epsilon:
                 a = HV_A0
             else:
-                a = (self.desired_velocity - self.velocity) * HV_L
+                a = min(HV_AMAX, (self.desired_velocity - self.velocity) / (self.velocity+0.01) * HV_L * HV_AMAX)
         # adaptive zone
         elif (df < HV_K1*self.safe_distance) and (df > HV_K2*self.safe_distance):
             if self.velocity > vf:
-                a = (vf - self.velocity) * HV_L
+                a = min(af, max(-HV_BRAKING, (vf - self.velocity) / (vf+0.01) * HV_L * HV_AMAX))
             else:
-                if max(0, (self.desired_velocity - self.velocity)) < self.epsilon:
+                if self.desired_velocity - self.velocity == 0:
                     a = 0
                 elif (self.desired_velocity - self.velocity) < self.epsilon:
                     a = HV_A0
                 else:
-                    a = (self.desired_velocity - self.velocity) * HV_L
+                    a = min(HV_AMAX, (vf - self.velocity) / (vf+0.01) * HV_L * HV_AMAX)
         # braking zone
         else:
             if df < HV_K*self.safe_distance:
                 a = -HV_BRAKING
             elif self.velocity > vf:
-                a = (-HV_BRAKING / self.safe_distance * df + HV_BRAKING) # always negative
+                a = max(-HV_BRAKING, -(HV_BRAKING / self.safe_distance * df - HV_BRAKING)) # always negative
             else: # try these one at a time and see what works best!
                 # a = 0 # option 1
                 # a = small number # option 2
                 a = -0.1
                 # a = -(-HV_AMAX / self.safe_distance * df + HV_AMAX) * (self.safe_distance-df)/HV_DHV_D   # option 3
-        print("self.velocity: {}".format(self.velocity))
-        print("self.safe_time: {}".format(self.safe_time))
-        print("self.safe_distance: {}".format(self.safe_distance))
-        print("self.velocity * self.safe_time: {}".format(self.velocity * self.safe_time))
+        # print("self.velocity: {}".format(self.velocity))
+        # print("self.safe_time: {}".format(self.safe_time))
+        # print("self.safe_distance: {}".format(self.safe_distance))
+        # print("self.velocity * self.safe_time: {}".format(self.velocity * self.safe_time))
+
         return a

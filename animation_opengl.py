@@ -100,10 +100,10 @@ class Animation:
         if v.emergency > 0:
             glColor3f(0.7, 0.1, 0.1)
         elif v.acceleration < 0:
-            a = min(1.0, -v.acceleration/5)
+            a = min(1.0, -v.acceleration/9)
             glColor3f(a, a, 0.1)
         elif v.acceleration > 0:
-            a = min(1.0, 0.3 + v.acceleration/5)
+            a = min(1.0, 0.3 + v.acceleration/3)
             glColor3f(0.1, a, 0.1)
         elif v.desired_velocity-v.velocity < 1:
             glColor3f(0.05, 0.4, 0.4)
