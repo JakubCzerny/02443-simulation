@@ -33,7 +33,7 @@ class VehicleContainer:
             if pos_left - pos > 0:
                 return left
             else:
-                return self.back(left)
+                return self.front(left)
         else:
             return None
 
@@ -46,7 +46,7 @@ class VehicleContainer:
             if pos_left - pos < 0:
                 return left
             else:
-                return self.front(left)
+                return self.back(left)
         else:
             return None
 
@@ -62,7 +62,7 @@ class VehicleContainer:
             if pos_right - pos > 0:
                 return right
             else:
-                return self.back(right)
+                return self.front(right)
         else:
             return None
 
@@ -75,7 +75,7 @@ class VehicleContainer:
             if pos_right - pos < 0:
                 return right
             else:
-                return self.front(right)
+                return self.back(right)
         return None
 
     def first(self, lane):
