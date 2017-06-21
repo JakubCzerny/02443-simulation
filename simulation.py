@@ -32,6 +32,9 @@ class Simulation:
         if self._sim_time >= self._time_to_next_spawn:
             lane = np.random.randint(self._conf.nb_lanes)
             vehicle = HumanVehicle(lane)
+            vehicle.velocity = np.random.uniform(
+                        self._conf.speed_range[0],
+                        self._conf.speed_range[1])
 
             # If there already exists a vehicle in the lane.
             if self._container.last(lane):
@@ -48,12 +51,6 @@ class Simulation:
                     vehicle.velocity = np.random.uniform(
                         last.velocity*0.5,
                         last.velocity*min(1, last.position/(2*self._conf.extremely_safe_distance) + 1))
-
-            # Else draw random velocity.
-            else:
-                vehicle.velocity = np.random.uniform(
-                        self._conf.speed_range[0],
-                        self._conf.speed_range[1])
 
 
             # Spawn the car.
