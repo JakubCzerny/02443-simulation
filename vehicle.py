@@ -111,17 +111,6 @@ class HumanVehicle(Vehicle):
                 self.previous_time = time.time()
         #########################################################
 
-        """
-        if time.time() - self.previous_time > (2.0/conf.speedup):
-            if p < p_right and self.lane+1 < conf.nb_lanes:
-                self.lane += 1
-                container.notify_lane_change(self, self.lane-1)
-                self.previous_time = time.time()
-            elif p < p_left and self.lane > 0:
-                self.lane -= 1
-                container.notify_lane_change(self, self.lane+1)
-                self.previous_time = time.time()
-        """
         ### ANIMATION FOR LANE CHANGING
         if abs(self.animlane - self.lane) > 0.1:
             if self.animlane < self.lane:
