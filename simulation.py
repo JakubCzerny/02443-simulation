@@ -68,7 +68,7 @@ class Simulation:
         v.position = pos
         w = self._container.get_closest_vehicle(v, lane)
 
-        if v and abs(w.position-pos) < max_dist:
+        if w and abs(w.position-pos) < max_dist:
             return w
         return None
 
