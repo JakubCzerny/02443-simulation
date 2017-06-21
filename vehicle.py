@@ -44,12 +44,13 @@ class Vehicle:
 #                        VEHICLE DRIVEN BY A HUMAN                            #
 ###############################################################################
 
-HV_K    = 1.5 # distance factor
-HV_K1   = 4.0  # scaling factors on safety distance ds to separate space to...
-HV_K2   = 2.0  # ... car in front into behavioral zones.
+HV_K    = 1.5  # distance factor
+HV_K1   = 5.0  # scaling factors on safety distance ds to separate space to...
+HV_K2   = 2.5  # ... car in front into behavioral zones.
 HV_A0   = 1.0  # small constant acceleration to reach desired velocity
-HV_L    = 3.0  # no idea what this is
+HV_L    = 1.0  # no idea what this is
 HV_AMAX = 3.0  # maximum acceleration (0-100 in about 7 seconds)
+HV_BRAKING = 9.0
 
 # More names
 #    [X]f  - front           [X]b  - back
@@ -84,6 +85,7 @@ class HumanVehicle(Vehicle):
         dlf = veh_lf.position - self.position if veh_lf else None
 
         veh_lb = container.left_back(self)
+        vlb = veh_lb.velocity if veh_lb else None
         dlb = self.position - veh_lb.position if veh_lb else None
 
         veh_rf = container.right_front(self)
@@ -95,9 +97,9 @@ class HumanVehicle(Vehicle):
 
         p = np.random.rand()
         p_right = self.prob_right(conf, df, vf, db, vrf, drf, drb)
-        p_left = self.prob_left(conf, af, vf, df, dlf, vlf, dlb)
+        p_left = self.prob_left(conf, af, vf, df, dlf, vlf, dlb, vlb)
 
-        if time.time() - self.previous_time>2.0:
+        if time.time() - self.previous_time > (2.0/conf.speedup):
             if p < p_right and self.lane+1 < conf.nb_lanes:
                 self.lane += 1
                 container.notify_lane_change(self, self.lane-1)
@@ -122,14 +124,15 @@ class HumanVehicle(Vehicle):
         self.velocity = min(self.desired_velocity, self.velocity)
         self.acceleration = min(HV_AMAX, acc)
 
-    def prob_left(self, conf, af, vf, df, dlf, vlf, dlb):
+    def prob_left(self, conf, af, vf, df, dlf, vlf, dlb, vlb):
         p = 0
 
-        if (df and df < 5*HV_K*conf.safe_distance \
+        if (df and df < 2*HV_K1*conf.safe_distance \
             and (self.desired_velocity - self.velocity > self.epsilon or self.desired_velocity - vf > self.epsilon) \
-            and (not dlf or (dlf > 2/3*HV_K*conf.safe_distance)) \
-            and (not dlb or (dlb > 2/3*HV_K*conf.safe_distance)) \
-            and (not vlf or (self.velocity <= vlf or dlf >= HV_K*conf.safe_distance))):
+            and (not dlf or (dlf > HV_K2*conf.safe_distance)) \
+            and (not dlb or (dlb > HV_K2*conf.safe_distance)) \
+            and (not vlf or (self.velocity <= vlf or dlf >= HV_K2*conf.safe_distance))
+            and (not vlb or (self.velocity >= vlb or dlb >= HV_K2*conf.safe_distance))):
             p = (conf.safe_distance/df)**(3/4)  # P(left|state)
             # p = np.sqrt(conf.safe_distance/df)  # P(left|state)
         return p
@@ -138,14 +141,12 @@ class HumanVehicle(Vehicle):
         p = 0
 
         if (self.desired_velocity - self.velocity < self.epsilon) \
-            and (not drf or (drf > HV_K*conf.safe_distance)) \
-            and (not drb or (drb > HV_K*conf.safe_distance)) \
-            and (not vrf or (self.velocity <= vrf or drf > HV_K2*conf.safe_distance)):
+            and (not drf or (drf > 2/3*HV_K2*conf.safe_distance)) \
+            and (not drb or (drb > 2/3*HV_K2*conf.safe_distance)) \
+            and (not vrf or (self.velocity <= vrf or drf > HV_K1*conf.safe_distance)):
 
             if df:
-                p = np.sqrt(conf.safe_distance/df)
-            elif db:
-                p = np.sqrt(conf.safe_distance/db)
+                p = 1-np.sqrt(conf.safe_distance/df)
             else:
                 p = 0.8
 
@@ -176,12 +177,12 @@ class HumanVehicle(Vehicle):
         # braking zone
         else:
             if df < HV_K*conf.safe_distance:
-                a = -2*HV_AMAX
+                a = -HV_BRAKING
             elif self.velocity > vf:
-                a = (-HV_AMAX / conf.safe_distance * df + HV_AMAX) # always negative
+                a = (-HV_BRAKING / conf.safe_distance * df + HV_BRAKING) # always negative
             else: # try these one at a time and see what works best!
                 # a = 0 # option 1
                 # a = small number # option 2
-                a = -0.25
+                a = -0.1
                 # a = -(-HV_AMAX / conf.safe_distance * df + HV_AMAX) * (conf.safe_distance-df)/HV_DHV_D   # option 3
         return a
