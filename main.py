@@ -11,7 +11,7 @@ class Config:
     road_len = 1000         # meter, set as derived value
     spawn_rate = 7.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
-    safe_distance = 7.0     # meter
+    extremely_safe_distance = 5.0     # meter
 
     speedup = 1.0           # sec in animation = speedup*sec in simulation
 
