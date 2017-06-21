@@ -130,7 +130,7 @@ class HumanVehicle(Vehicle):
         else:
             self.animlane = self.lane
 
-        acc = self.calc_acceleration(conf, vf, df)
+        acc = self.calc_acceleration(conf, af, vf, df)
         self.acceleration = min(HV_AMAX, acc)
 
     def prob_left(self, conf, af, vf, df, dlf, vlf, dlb, vlb):
