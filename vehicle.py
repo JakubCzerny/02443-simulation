@@ -25,10 +25,10 @@ class Vehicle:
         # Emergency speed change: this should never occur, it should be
         # prevented by the proper acceleration/de-acceleration behavior.
         front = container.front(self)
-        if front and abs(front.position-new_position) < .75*conf.safe_distance:
+        if front and abs(front.position-new_position) < .99*conf.extremely_safe_distance:
             self.velocity = front.velocity
             self.acceleration = front.acceleration
-            self.position = front.position - .8*conf.safe_distance
+            self.position = front.position - conf.extremely_safe_distance
 
             self.emergency = conf.fps
 
@@ -63,6 +63,7 @@ class HumanVehicle(Vehicle):
         super().__init__(lane, position)
 
         self.desired_velocity = np.random.uniform(25.0, 35.0)
+        self.safe_time = 0.20 # seconds, 7m/(30m/s) = 0.23333... s
         self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
         self.previous_time = time.time()
@@ -70,6 +71,10 @@ class HumanVehicle(Vehicle):
     def update(self, conf, container, dt):
         # First update position using previous acc/vel...
         super().update(conf, container, dt)
+
+        # ... then update safe distance
+        self.safe_distance = self.velocity * self.safe_time
+        # self.safe_distance = 7
 
         # ... then update acc/vel itself
         veh_f = container.front(self)
@@ -101,11 +106,11 @@ class HumanVehicle(Vehicle):
 
         #NEW ONLY SWITCH IF THEY ARE ABOVE 3 SAFE_DISTANCES #####
         if time.time() - self.previous_time > (2.0/conf.speedup):
-            if (p < p_right) and (self.lane+1 < conf.nb_lanes) and (self.position > (3 * conf.safe_distance)):
+            if (p < p_right) and (self.lane+1 < conf.nb_lanes) and (self.position > (3 * self.safe_distance)):
                 self.lane += 1
                 container.notify_lane_change(self, self.lane-1)
                 self.previous_time = time.time()
-            elif (p < p_left) and (self.lane > 0) and (self.position > (3 * conf.safe_distance)):
+            elif (p < p_left) and (self.lane > 0) and (self.position > (3 * self.safe_distance)):
                 self.lane -= 1
                 container.notify_lane_change(self, self.lane+1)
                 self.previous_time = time.time()
@@ -129,26 +134,26 @@ class HumanVehicle(Vehicle):
     def prob_left(self, conf, af, vf, df, dlf, vlf, dlb, vlb):
         p = 0
 
-        if (df and df < 2*HV_K1*conf.safe_distance \
+        if (df and df < 2*HV_K1*self.safe_distance \
             and (self.desired_velocity - self.velocity > self.epsilon or self.desired_velocity - vf > self.epsilon) \
-            and (not dlf or (dlf > HV_K2*conf.safe_distance)) \
-            and (not dlb or (dlb > HV_K2*conf.safe_distance)) \
-            and (not vlf or (self.velocity <= vlf or dlf >= HV_K2*conf.safe_distance))
-            and (not vlb or (self.velocity >= vlb or dlb >= HV_K2*conf.safe_distance))):
-            p = (conf.safe_distance/df)**(3/4)  # P(left|state)
-            # p = np.sqrt(conf.safe_distance/df)  # P(left|state)
+            and (not dlf or (dlf > HV_K2*self.safe_distance)) \
+            and (not dlb or (dlb > HV_K2*self.safe_distance)) \
+            and (not vlf or (self.velocity <= vlf or dlf >= HV_K2*self.safe_distance))
+            and (not vlb or (self.velocity >= vlb or dlb >= HV_K2*self.safe_distance))):
+            p = (self.safe_distance/df)**(3/4)  # P(left|state)
+            # p = np.sqrt(self.safe_distance/df)  # P(left|state)
         return p
 
     def prob_right(self, conf, df, vf, db, vrf, drf, drb):
         p = 0
 
         if (self.desired_velocity - self.velocity < self.epsilon) \
-            and (not drf or (drf > 2/3*HV_K2*conf.safe_distance)) \
-            and (not drb or (drb > 2/3*HV_K2*conf.safe_distance)) \
-            and (not vrf or (self.velocity <= vrf or drf > HV_K1*conf.safe_distance)):
+            and (not drf or (drf > 2/3*HV_K2*self.safe_distance)) \
+            and (not drb or (drb > 2/3*HV_K2*self.safe_distance)) \
+            and (not vrf or (self.velocity <= vrf or drf > HV_K1*self.safe_distance)):
 
             if df:
-                p = 1-np.sqrt(conf.safe_distance/df)
+                p = 1-np.sqrt(self.safe_distance/df)
             else:
                 p = 0.8
 
@@ -158,7 +163,7 @@ class HumanVehicle(Vehicle):
         # NOTE: k2 = 1
 
         # acceleration zone
-        if (not df or (df > HV_K1*conf.safe_distance)):
+        if (not df or (df > HV_K1*self.safe_distance)):
             if max(0, (self.desired_velocity - self.velocity)) == 0:
                 a = 0
             elif (self.desired_velocity - self.velocity) < self.epsilon:
@@ -166,7 +171,7 @@ class HumanVehicle(Vehicle):
             else:
                 a = (self.desired_velocity - self.velocity) * HV_L
         # adaptive zone
-        elif (df < HV_K1*conf.safe_distance) and (df > HV_K2*conf.safe_distance):
+        elif (df < HV_K1*self.safe_distance) and (df > HV_K2*self.safe_distance):
             if self.velocity > vf:
                 a = (vf - self.velocity) * HV_L
             else:
@@ -178,13 +183,17 @@ class HumanVehicle(Vehicle):
                     a = (self.desired_velocity - self.velocity) * HV_L
         # braking zone
         else:
-            if df < HV_K*conf.safe_distance:
+            if df < HV_K*self.safe_distance:
                 a = -HV_BRAKING
             elif self.velocity > vf:
-                a = (-HV_BRAKING / conf.safe_distance * df + HV_BRAKING) # always negative
+                a = (-HV_BRAKING / self.safe_distance * df + HV_BRAKING) # always negative
             else: # try these one at a time and see what works best!
                 # a = 0 # option 1
                 # a = small number # option 2
                 a = -0.1
-                # a = -(-HV_AMAX / conf.safe_distance * df + HV_AMAX) * (conf.safe_distance-df)/HV_DHV_D   # option 3
+                # a = -(-HV_AMAX / self.safe_distance * df + HV_AMAX) * (self.safe_distance-df)/HV_DHV_D   # option 3
+        print("self.velocity: {}".format(self.velocity))
+        print("self.safe_time: {}".format(self.safe_time))
+        print("self.safe_distance: {}".format(self.safe_distance))
+        print("self.velocity * self.safe_time: {}".format(self.velocity * self.safe_time))
         return a
