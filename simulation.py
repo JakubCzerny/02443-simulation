@@ -24,7 +24,10 @@ class Simulation:
         vehicle.update(self._conf, self._container, dt)
 
         if vehicle.position > self._conf.road_len:
-            self._container.despawn(vehicle)
+            self._despawn_vehicle(vehicle)
+
+    def _despawn_vehicle(self, vehicle):
+        self._container.despawn(vehicle)
 
     def try_spawn_vehicle(self): #Tried to fix the spawning issue
 
@@ -71,3 +74,44 @@ class Simulation:
 
     def __iter__(self):
         return iter(self._container)
+
+
+###############################################################################
+#                      SIMULATION WITH HANDLERS                               #
+###############################################################################
+
+class SimulationWithHandlers(Simulation):
+
+    def __init__(self, conf, handlers=[]):
+        super().__init__(conf)
+        self._handlers = handlers
+
+        for h in self._handlers:
+            h._sim = self
+
+    def add_handler(self, handler):
+        self._handlers.append(handler)
+
+    def time_step(self, dt):
+        for h in self._handlers:
+            h.before_time_step(dt)
+
+        super().time_step(dt)
+
+        for h in self._handlers:
+            h.after_time_step(dt)
+
+    def time_step_vehicle(self, vehicle, dt):
+        for h in self._handlers:
+            h.before_vehicle_update(dt, vehicle)
+
+        super().time_step_vehicle(vehicle, dt)
+
+        for h in self._handlers:
+            h.after_vehicle_update(dt, vehicle)
+
+    def _despawn_vehicle(self, vehicle):
+        for h in self._handlers:
+            h.before_vehicle_despawn(vehicle)
+
+        super()._despawn_vehicle(vehicle)

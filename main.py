@@ -1,28 +1,34 @@
 import time
 
 from vehicle import Vehicle
-from simulation import Simulation
+from simulation import SimulationWithHandlers
 from animation import max_road_len
 from animation_opengl import Animation, AnimationInterrupt
+from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
 
 class Config:
-    fps = 30
+    fps = 60
     nb_lanes = 3
-    road_len = 1000         # meter, set as derived value
+    road_len = 600          # meter, set as derived value
     spawn_rate = 3.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     extremely_safe_distance = 3.0     # meter
 
-    speedup = 2.0           # sec in animation = speedup*sec in simulation
+    speedup = 1.0           # sec in animation = speedup*sec in simulation
 
     # Animation
     window_width = 1800
-    rows = 3                # number of wrapped roads vertically
-    scale = 5               # pixels per meter
+    rows = 2                # number of wrapped roads vertically
 
 def start_sim():
     conf = Config()
-    sim = Simulation(conf)
+
+    sim = SimulationWithHandlers(conf)
+
+    stats = StatsEvHandler()
+    sim.add_handler(stats)
+    #sim.add_handler(SlowZoneEvHandler(300, 350, max_velocity=7))   # uncomment this if you want a slow zone
+
     anim = Animation(sim, conf)
     dt = 1./conf.fps
 
@@ -35,6 +41,8 @@ def start_sim():
         print("Simulation interrupted.")
     finally:
         anim.destroy()
+
+    print(stats)
 
 if __name__ == "__main__":
     start_sim()
