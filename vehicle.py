@@ -45,8 +45,8 @@ class Vehicle:
 ###############################################################################
 
 HV_K    = 1.5 # distance factor
-HV_K1   = 4.5  # scaling factors on safety distance ds to separate space to...
-HV_K2   = 3.0  # ... car in front into behavioral zones.
+HV_K1   = 4.0  # scaling factors on safety distance ds to separate space to...
+HV_K2   = 2.0  # ... car in front into behavioral zones.
 HV_A0   = 1.0  # small constant acceleration to reach desired velocity
 HV_L    = 3.0  # no idea what this is
 HV_AMAX = 3.0  # maximum acceleration (0-100 in about 7 seconds)
@@ -64,6 +64,7 @@ class HumanVehicle(Vehicle):
         self.desired_velocity = np.random.uniform(25.0, 35.0)
         self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
+        self.previous_time = time.time()
 
     def update(self, conf, container, dt):
         # First update position using previous acc/vel...
@@ -96,12 +97,15 @@ class HumanVehicle(Vehicle):
         p_right = self.prob_right(conf, df, vf, db, vrf, drf, drb)
         p_left = self.prob_left(conf, af, vf, df, dlf, vlf, dlb)
 
-        if p < p_right and self.lane+1 < conf.nb_lanes:
-            self.lane += 1
-            container.notify_lane_change(self, self.lane-1)
-        elif p < p_left and self.lane > 0:
-            self.lane -= 1
-            container.notify_lane_change(self, self.lane+1)
+        if time.time() - self.previous_time>2.0:
+            if p < p_right and self.lane+1 < conf.nb_lanes:
+                self.lane += 1
+                container.notify_lane_change(self, self.lane-1)
+                self.previous_time = time.time()
+            elif p < p_left and self.lane > 0:
+                self.lane -= 1
+                container.notify_lane_change(self, self.lane+1)
+                self.previous_time = time.time()
 
         ### ANIMATION FOR LANE CHANGING
         if abs(self.animlane - self.lane) > 0.1:
@@ -132,16 +136,18 @@ class HumanVehicle(Vehicle):
 
     def prob_right(self, conf, df, vf, db, vrf, drf, drb):
         p = 0
+
         if (self.desired_velocity - self.velocity < self.epsilon) \
             and (not drf or (drf > HV_K*conf.safe_distance)) \
             and (not drb or (drb > HV_K*conf.safe_distance)) \
-            and (not vrf or (self.velocity <= vrf or drf >= HV_K*conf.safe_distance)):
+            and (not vrf or (self.velocity <= vrf or drf > HV_K2*conf.safe_distance)):
 
-            p = 0.8
-            # if db:
-            #     p = np.sqrt(conf.safe_distance/db)  # P(right|state)
-            # else:
-            #     p = 0.5
+            if df:
+                p = np.sqrt(conf.safe_distance/df)
+            elif db:
+                p = np.sqrt(conf.safe_distance/db)
+            else:
+                p = 0.8
 
         return p
 
