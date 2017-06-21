@@ -121,9 +121,6 @@ class Animation:
         glVertex2f(x1, y1)
         glVertex2f(x0, y1)
 
-    def _y_offset(self, row, lane):
-        return row*self._road_width + ROAD_SPACING + lane*LANE_WIDTH
-
     def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -131,3 +128,27 @@ class Animation:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     raise AnimationInterrupt
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    pos, lane = self._pixel_pox_to_pos_lane(event.pos[0], event.pos[1])
+                    self._slow_down_cars(pos)
+
+    def _y_offset(self, row, lane):
+        return row*self._road_width + ROAD_SPACING + lane*LANE_WIDTH
+
+    def _pixel_pox_to_pos_lane(self, x, y):
+        xm = x / self._pixels_per_meter
+        ym = y / self._pixels_per_meter
+
+        row = ym // self._road_width
+        pos = row*self._row_length + xm
+        lane = int((ym - row*self._road_width - ROAD_SPACING) // LANE_WIDTH)
+
+        return (pos, lane)
+
+    def _slow_down_cars(self, pos):
+        for i in range(self._conf.nb_lanes):
+            v = self._sim.find_vehicle(pos, i)
+            if v:
+                v.velocity = 0
+                v.acceleration = 0
