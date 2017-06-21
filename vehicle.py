@@ -21,6 +21,7 @@ class Vehicle:
 
     def update(self, conf, container, dt):
         new_position = self.position + dt*self.velocity + .5*dt*dt*self.acceleration
+        new_velocity = max(0, self.velocity + self.acceleration*dt)
 
         # Emergency speed change: this should never occur, it should be
         # prevented by the proper acceleration/de-acceleration behavior.
@@ -36,6 +37,7 @@ class Vehicle:
                     self.__class__.__name__)
         else:
             self.position = new_position
+            self.velocity = new_velocity
             self.emergency = max(0, self.emergency-1)
 
 
@@ -69,8 +71,11 @@ class HumanVehicle(Vehicle):
         self.previous_time = time.time()
 
     def update(self, conf, container, dt):
-        # First update position using previous acc/vel...
+        # First update position and velocity using previous acc/vel...
         super().update(conf, container, dt)
+
+        # ... cap velocity by desired_velocity and...
+        self.velocity = min(self.desired_velocity, self.velocity)
 
         # ... then update safe distance
         self.safe_distance = self.velocity * self.safe_time
@@ -126,9 +131,6 @@ class HumanVehicle(Vehicle):
             self.animlane = self.lane
 
         acc = self.calc_acceleration(conf, vf, df)
-
-        self.velocity = max(0, self.velocity + acc*dt)
-        self.velocity = min(self.desired_velocity, self.velocity)
         self.acceleration = min(HV_AMAX, acc)
 
     def prob_left(self, conf, af, vf, df, dlf, vlf, dlb, vlb):
@@ -192,8 +194,4 @@ class HumanVehicle(Vehicle):
                 # a = small number # option 2
                 a = -0.1
                 # a = -(-HV_AMAX / self.safe_distance * df + HV_AMAX) * (self.safe_distance-df)/HV_DHV_D   # option 3
-        print("self.velocity: {}".format(self.velocity))
-        print("self.safe_time: {}".format(self.safe_time))
-        print("self.safe_distance: {}".format(self.safe_distance))
-        print("self.velocity * self.safe_time: {}".format(self.velocity * self.safe_time))
         return a
