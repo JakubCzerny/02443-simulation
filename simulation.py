@@ -47,7 +47,7 @@ class Simulation:
 
                 # Else if distance is below 5 safe_distances, spawn with
                 # velocity depending on car in front.
-                elif last.position < self._conf.extremely_safe_distance * 5:
+                elif last.position < (self._conf.extremely_safe_distance * last.velocity*10):
                     vehicle.velocity = np.random.uniform(
                         last.velocity*0.5,
                         last.velocity*min(1, last.position/(2*self._conf.extremely_safe_distance) + 1))
