@@ -96,13 +96,23 @@ class HumanVehicle(Vehicle):
         p_right = self.prob_right(conf, df, vf, db, vrf, drf, drb)
         p_left = self.prob_left(conf, af, vf, df, dlf, vlf, dlb)
 
-        if p < p_right and self.lane+1 < conf.nb_lanes:
+        #NEW ONLY SWITCH IF THEY ARE ABOVE 3 SAFE_DISTANCES #####
+        if (p < p_right) and (self.lane+1 < conf.nb_lanes) and (self.position > (3 * conf.safe_distance)):
             self.lane += 1
             container.notify_lane_change(self, self.lane-1)
-        elif p < p_left and self.lane > 0:
+        elif (p < p_left) and (self.lane > 0) and (self.position > (3 * conf.safe_distance)):
             self.lane -= 1
             container.notify_lane_change(self, self.lane+1)
+        #########################################################
 
+        """ OLD
+        if (p < p_right) and (self.lane+1 < conf.nb_lanes):
+            self.lane += 1
+            container.notify_lane_change(self, self.lane-1)
+        elif (p < p_left) and (self.lane > 0):
+            self.lane -= 1
+            container.notify_lane_change(self, self.lane+1)
+        """
         ### ANIMATION FOR LANE CHANGING
         if abs(self.animlane - self.lane) > 0.1:
             if self.animlane < self.lane:
