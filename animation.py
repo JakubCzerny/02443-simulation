@@ -27,9 +27,11 @@ class Animation(AnimationBase):
         pygame.display.set_caption('Highway simulation')
 
         song = pygame.mixer.Sound('highway-1.wav')
+        song2 = pygame.mixer.Sound('wilhem.wav')
 
         self._clock = pygame.time.Clock()
         song.play(loops = -1)
+        song2.play(loops = -1)
 
         self._screen = pygame.display.set_mode((conf.window_width, conf.window_height))
 
