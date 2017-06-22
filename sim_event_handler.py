@@ -1,4 +1,5 @@
-
+import matplotlib.pyplot as plt
+import pandas as pd
 class SimEventHandler:
     """
     A simulation handler allows you to add additional behavior to the base
@@ -15,7 +16,7 @@ class SimEventHandler:
     def before_time_step(self, dt):
         pass
 
-    def after_time_step(self, dt):
+    def after_time_step(self, dt, sim_time):
         pass
 
     def before_vehicle_update(self, dt, vehicle):
@@ -26,6 +27,9 @@ class SimEventHandler:
 
     def before_vehicle_despawn(self, vehicle):
         pass
+
+    def __str__(self):
+        return self.__class__.__name__
 
 class SlowZoneEvHandler(SimEventHandler):
     """
@@ -38,11 +42,15 @@ class SlowZoneEvHandler(SimEventHandler):
         self._start = start
         self._stop = stop
         self._max_velocity = max_velocity
+        self._acc = -3
 
     def after_vehicle_update(self, dt, vehicle):
         if self.enabled and vehicle.position > self._start and vehicle.position < self._stop:
-            if vehicle.velocity > self._max_velocity:
-                vehicle.acceleration = -3
+            if vehicle.velocity > self._max_velocity and vehicle.acceleration > self._acc:
+                vehicle.acceleration = self._acc
+
+    def __str__(self):
+        return "{}: max_velocity={}".format(self.__class__.__name__, self._max_velocity)
 
 class StatsEvHandler(SimEventHandler):
     """
@@ -60,3 +68,46 @@ class StatsEvHandler(SimEventHandler):
         Statistics summary:
          - unspawned_count: {}
         """.format(self.unspawned_count)
+
+class AverageSpeedHandler(SimEventHandler):
+
+    def __init__(self):
+        self.averageSpeed = 0
+        self.numberOfVehicles = 0
+        self.averageSpeedList = []
+        self.simTimeList = []
+        self.updatecount = 0
+
+    def after_vehicle_update(self, dt, vehicle):
+        self.averageSpeed += vehicle.velocity
+        self.numberOfVehicles += 1
+
+    def after_time_step(self, dt, sim_time):
+        self.updatecount += 1
+        if self.updatecount > 1: #Only update ever 3. timestep 
+            if self.numberOfVehicles > 0:
+                self.averageSpeedList.append(self.averageSpeed / self.numberOfVehicles)
+                self.averageSpeed = 0
+                self.numberOfVehicles = 0
+                self.simTimeList.append(sim_time)
+            self.updatecount = 0
+
+    def plot(self):
+        windowSize = 5
+        speed = pd.DataFrame(self.averageSpeedList)
+        r = speed.rolling(window = windowSize) # Average last 10 values
+        r = r.mean()
+        time = pd.DataFrame(self.simTimeList)
+
+        plt.figure()
+
+        #plt.plot(self.simTimeList,speed, linewidth = 2)
+        plt.plot(self.simTimeList,r, linewidth = 4)
+        plt.grid()
+
+        
+        plt.xlabel("Time [s]")
+        plt.ylabel("Average speed of cars [m/s]")
+        plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize))
+        plt.show()
+        print(len(self.simTimeList))

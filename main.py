@@ -1,30 +1,30 @@
 import time
+import pygame
 
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
 from animation import max_road_len
-#from animation import Animation, AnimationInterrupt
-from animation_opengl import Animation#, AnimationInterrupt
+from animation_opengl import Animation
+
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
-from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
+from sim_event_handler import SlowZoneEvHandler, StatsEvHandler, AverageSpeedHandler
 
 class Config:
     fps = 60
     nb_lanes = 3
     road_len = 600          # meter, set as derived value
-    spawn_rate = 2.0        # cars per second
+    spawn_rate = 1.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
-    extremely_safe_distance = 3.0     # meter
 
     speedup = 1.0           # sec in animation = speedup*sec in simulation
 
     # Animation
     window_height = 370
-    scale = 4  
     rows = 3               # number of wrapped roads vertically
     window_width = 1800
-    rows = 3                # number of wrapped roads vertically
+
+    sound = False
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
@@ -35,13 +35,22 @@ def start_sim():
     conf = Config()
 
     sim = SimulationWithHandlers(conf)
+    anim = Animation(sim, conf)
+    dt = 1./conf.fps
 
     stats = StatsEvHandler()
     sim.add_handler(stats)
-    #sim.add_handler(SlowZoneEvHandler(300, 350, max_velocity=7))   # uncomment this if you want a slow zone
+    avgspeed = AverageSpeedHandler()
+    sim.add_handler(avgspeed)
 
-    anim = Animation(sim, conf)
-    dt = 1./conf.fps
+    slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
+    slow_zone1.enabled = False   # disabled by default, enable by pressing S
+    sim.add_handler(slow_zone1)
+    anim.register_interactive_sim_handler(slow_zone1, pygame.K_s)
+    slow_zone2 = SlowZoneEvHandler(300, 450, max_velocity=0)
+    slow_zone2.enabled = False   # disabled by default, enable by pressing T
+    sim.add_handler(slow_zone2)
+    anim.register_interactive_sim_handler(slow_zone2, pygame.K_t)
 
     try:
         while True:
@@ -54,6 +63,7 @@ def start_sim():
         anim.destroy()
 
     print(stats)
+    # avgspeed.plot()
 
 if __name__ == "__main__":
     start_sim()

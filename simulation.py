@@ -1,7 +1,8 @@
 import numpy as np
 
 from vehicle_container import VehicleContainer as Container
-from vehicle import Vehicle, HumanVehicle
+from vehicle import Vehicle, HumanVehicle, Car, Truck
+import pygame
 
 class Simulation:
 
@@ -10,6 +11,7 @@ class Simulation:
         self._container = Container(conf.nb_lanes)
         self._sim_time = 0
         self._time_to_next_spawn = 0
+        self.sound = conf.sound
 
     def time_step(self, dt):
         # loop over all vehicles, update all vehicles
@@ -33,8 +35,13 @@ class Simulation:
 
         # If the time has come to spawn new vehicle.
         if self._sim_time >= self._time_to_next_spawn:
-            lane = np.random.randint(self._conf.nb_lanes)
-            vehicle = HumanVehicle(lane)
+            p = np.random.rand()
+            if p > 0.9:
+                lane = self._conf.nb_lanes - 1
+                vehicle = Truck(lane)
+            else:
+                lane = np.random.randint(self._conf.nb_lanes)
+                vehicle = Car(lane)
             vehicle.velocity = np.random.uniform(
                         self._conf.speed_range[0],
                         self._conf.speed_range[1])
@@ -43,21 +50,24 @@ class Simulation:
             if self._container.last(lane):
                 last = self._container.last(lane)
                 # If the safe distance is not held, don't spawn.
-                if last.position < self._conf.extremely_safe_distance * 2:
+                if last.position < last.extremely_safe_distance * 2:
                     self._time_to_next_spawn = self._sim_time + \
                         np.random.exponential(1/self._conf.spawn_rate)
                     return
 
                 # Else if distance is below 5 safe_distances, spawn with
                 # velocity depending on car in front.
-                elif last.position < (self._conf.extremely_safe_distance * last.velocity*10):
+                elif last.position < (last.extremely_safe_distance * last.velocity*10):
                     vehicle.velocity = np.random.uniform(
                         last.velocity*0.5,
-                        last.velocity*min(1, last.position/(2*self._conf.extremely_safe_distance) + 1))
+                        last.velocity*min(1, last.position/(2*last.extremely_safe_distance) + 1))
 
 
             # Spawn the car.
             self._container.spawn(vehicle)
+            if isinstance(vehicle, Truck) and self.sound:
+                    truckyeah = pygame.mixer.Sound('truckyeah.wav')
+                    truckyeah.play()
 
             # Find time to next car.
             self._time_to_next_spawn = self._sim_time + \
@@ -99,7 +109,7 @@ class SimulationWithHandlers(Simulation):
         super().time_step(dt)
 
         for h in self._handlers:
-            h.after_time_step(dt)
+            h.after_time_step(dt, self._sim_time)
 
     def time_step_vehicle(self, vehicle, dt):
         for h in self._handlers:

@@ -6,6 +6,9 @@ from pygame.locals import *
 from OpenGL.GL import *
 OpenGL.ERROR_CHECKING = False
 
+import inspect
+from vehicle import Car, Truck
+
 from animation_base import AnimationBase
 
 LANE_WIDTH   = 4.0
@@ -40,12 +43,12 @@ class Animation(AnimationBase):
         self.asphalt = self.TexFromIMG("asphalt.jpg")
 
         self.textures = {
-            'car': self.TexFromIMG("car.png"),
             'yellow_car': self.TexFromIMG("yellow_car.png"),
-            'black_car': self.TexFromIMG("black_car.png"),
+            'black_car':  self.TexFromIMG("black_car.png"),
             'police_car': self.TexFromIMG("police_car.png"),
-            'ambulance': self.TexFromIMG("ambulance.png"),
-            'red_truck': self.TexFromIMG("red_truck.png")
+            'ambulance':  self.TexFromIMG("ambulance.png"),
+            'red_truck':  self.TexFromIMG("red_truck.png"),
+            'car':        self.TexFromIMG("car.png")
         }
         
     def _confirm_display(self):
@@ -78,18 +81,18 @@ class Animation(AnimationBase):
 
     def _draw_asphalt(self):
         glEnable(GL_TEXTURE_2D)
-        glEnable(GL_BLEND)
+        # glEnable(GL_BLEND)
         glBindTexture(GL_TEXTURE_2D, self.asphalt)
 
         glBegin(GL_QUADS)
         glTexCoord2f(0.0, 0.0);
-        glVertex2f(0, 0)
-        glTexCoord2f(1.0*8, 0.0);
-        glVertex2f(200, 0)
-        glTexCoord2f(1.0*8, 1.0*8);
-        glVertex2f(200, 200)
-        glTexCoord2f(0.0, 1.0*8);
-        glVertex2f(0, 200)
+        glVertex2f(0, 2)
+        glTexCoord2f(1.0*16, 0.0);
+        glVertex2f(200, 2)
+        glTexCoord2f(1.0*16, 1.0*16);
+        glVertex2f(200, 44)
+        glTexCoord2f(0.0, 1.0*16);
+        glVertex2f(0, 44)
         glEnd()
 
 
@@ -148,7 +151,12 @@ class Animation(AnimationBase):
             glColor3f(0.1, a, 0.1)
         elif v.desired_velocity-v.velocity < 1:
             glColor3f(0.05, 0.4, 0.4)
-        self._draw_rect(xc-0.5, yc, 0.5, 0.5)
+
+        if isinstance(v, Car):
+            self._draw_rect(xc-0.5, yc, 0.5, 0.5)
+        elif isinstance(v, Truck):
+            self._draw_rect(xc, yc, v.length, 2)
+
         glColor3f(0.0, 0.0, 0.0)            
         glEnd()
 
