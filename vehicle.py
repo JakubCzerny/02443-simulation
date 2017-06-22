@@ -357,6 +357,7 @@ class AutomaticCar(HumanVehicle):
         elif (df < self.HV_K2*self.safe_distance) and (df > self.HV_K3*self.safe_distance) and (np.absolute(vf - self.desired_velocity) < 2):
             if np.absolute(self.velocity - vf < 1):
                 self.velocity = vf
+                a = 0
                 if self.safe_distance > 2:
                     self.safe_distance -= 1
             else:
