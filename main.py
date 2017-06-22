@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import time
 import pygame
 
@@ -8,23 +10,23 @@ from animation_opengl import Animation
 
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
-from sim_event_handler import SlowZoneEvHandler, StatsEvHandler, AverageSpeedHandler
+from sim_event_handler import *
 
 class Config:
     fps = 60
     nb_lanes = 3
-    road_len = 600          # meter, set as derived value
+    road_len = 600          # meter
     spawn_rate = 1.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
 
-    speedup = 1.0           # sec in animation = speedup*sec in simulation
+    speedup = 1             # int speed up factor: 1 sec in anim = speedup sec in sim
 
     # Animation
     window_height = 370
-    rows = 3               # number of wrapped roads vertically
+    rows = 3                # number of wrapped roads vertically
     window_width = 1800
 
-    sound = False
+    sound = True
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
@@ -42,6 +44,8 @@ def start_sim():
     sim.add_handler(stats)
     avgspeed = AverageSpeedHandler()
     sim.add_handler(avgspeed)
+    throughput = ThroughPutHandler()
+    sim.add_handler(throughput)
 
     slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
     slow_zone1.enabled = False   # disabled by default, enable by pressing S
@@ -54,7 +58,8 @@ def start_sim():
 
     try:
         while True:
-            sim.time_step(conf.speedup*dt)
+            for i in range(conf.speedup):
+                sim.time_step(conf.speedup*dt)
             anim.draw_frame()
     except (KeyboardInterrupt, AnimationInterrupt):
         print()
@@ -63,7 +68,8 @@ def start_sim():
         anim.destroy()
 
     print(stats)
-    # avgspeed.plot()
+    #avgspeed.plot()
+    #throughput.plot()
 
 if __name__ == "__main__":
     start_sim()

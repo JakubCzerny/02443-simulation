@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+
 class SimEventHandler:
     """
     A simulation handler allows you to add additional behavior to the base
@@ -10,10 +12,9 @@ class SimEventHandler:
     sub-classes.
     """
 
-    _sim = None
     enabled = True
 
-    def before_time_step(self, dt):
+    def before_time_step(self, dt, sim_time):
         pass
 
     def after_time_step(self, dt, sim_time):
@@ -71,6 +72,9 @@ class StatsEvHandler(SimEventHandler):
 
 class AverageSpeedHandler(SimEventHandler):
 
+    """
+    Tracks the average speed of the vehicles. 
+    """
     def __init__(self):
         self.averageSpeed = 0
         self.numberOfVehicles = 0
@@ -104,10 +108,41 @@ class AverageSpeedHandler(SimEventHandler):
         #plt.plot(self.simTimeList,speed, linewidth = 2)
         plt.plot(self.simTimeList,r, linewidth = 4)
         plt.grid()
-
         
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
         plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
-        plt.rcParams.update({'font.size': 45})
+        #plt.rcParams.update({'font.size': 45})
+        plt.show()
+        print(len(self.simTimeList))
+
+class ThroughPutHandler(SimEventHandler):
+
+    def __init__(self):
+        self.nb_vehicles = 0
+        self.nb_vehicles_list = []
+        self.interval = 30 # seconds
+        self.max_time = 0
+
+    def before_vehicle_despawn(self, vehicle):
+        self.nb_vehicles += 1
+
+    def after_time_step(self, dt, sim_time):
+        if len(self.nb_vehicles_list) < sim_time // self.interval:
+            self.nb_vehicles_list.append(self.nb_vehicles)
+            self.nb_vehicles = 0
+            self.max_time = sim_time
+
+    def plot(self):
+        if len(self.nb_vehicles_list) == 0:
+            return
+
+        print("Average/min/max throughput",
+                np.mean(self.nb_vehicles_list),
+                np.min(self.nb_vehicles_list),
+                np.max(self.nb_vehicles_list))
+        plt.figure()
+        plt.xlabel("Time [s]", fontsize = 23)
+        plt.ylabel("Throughput [vehicles/{}s]".format(self.interval), fontsize = 23)
+        plt.plot(np.linspace(0, self.max_time, len(self.nb_vehicles_list)), self.nb_vehicles_list)
         plt.show()
