@@ -77,7 +77,7 @@ class HumanVehicle(Vehicle):
             v = container.right_back(self)
             d = self.position - v.position if v else None
 
-        if not d:
+        if d is None:
             return True
         elif d > max(v.length, self.HV_K*v.safe_distance):
             return True
@@ -126,12 +126,20 @@ class HumanVehicle(Vehicle):
         p_left = self.prob_left(container, conf, af, vf, df, dlf, vlf, dlb, vlb)
 
         #NEW ONLY SWITCH IF THEY ARE ABOVE 3 SAFE_DISTANCES #####
-        if time.time() - self.last_lane_change > (5.0/conf.speedup):
-            if (p < p_right) and (self.lane+1 < conf.nb_lanes) and (self.position > (3 * self.safe_distance)):
+        if time.time() - self.last_lane_change > (5.0/conf.speedup) and self.velocity > 2:
+            if (p < p_right) \
+                and (self.lane+1 < conf.nb_lanes) \
+                and (self.position > (3 * self.safe_distance)) \
+                and (drf is None or drf > self.safe_distance) \
+                and (drb is None or drb > veh_rb.safe_distance):
                 self.lane += 1
                 container.notify_lane_change(self, self.lane-1)
                 self.last_lane_change = time.time()
-            elif (p < p_left) and (self.lane > 0) and (self.position > (3 * self.safe_distance)):
+            elif (p < p_left) \
+                and (self.lane > 0) \
+                and (self.position > (3 * self.safe_distance)) \
+                and (dlf is None or dlf > self.safe_distance) \
+                and (dlb is None or dlb > veh_lb.safe_distance):
                 self.lane -= 1
                 container.notify_lane_change(self, self.lane+1)
                 self.last_lane_change = time.time()
@@ -155,19 +163,18 @@ class HumanVehicle(Vehicle):
             and (self.desired_velocity - self.velocity > self.epsilon or self.desired_velocity - vf > self.epsilon) \
             and self._enough_room(container, ('left','front')) \
             and self._enough_room(container, ('left','back')) \
-            and (not vlf or (self.velocity <= vlf or dlf >= self.HV_K2*self.safe_distance))
-            and (not vlb or (self.velocity >= vlb or dlb >= self.HV_K1*self.safe_distance))):
+            and (vlf is None or (self.velocity <= vlf or dlf >= self.HV_K1*self.safe_distance))
+            and (vlb is None or (self.velocity >= vlb or dlb >= self.HV_K1*self.safe_distance))):
             p = (self.safe_distance/df)**(3/4)  # P(left|state)
-            # p = np.sqrt(self.safe_distance/df)  # P(left|state)
         return p
 
     def prob_right(self, container, conf, df, vf, db, vrf, drf, vrb, drb):
         p = 0
 
-        if (not vrf or vrf - self.velocity < self.epsilon) \
+        if (vrf is None or self.velocity < self.epsilon) \
             and self._enough_room(container, ('right','front')) \
             and self._enough_room(container, ('right','back')) \
-            and (not vrf or (self.velocity <= vrf or drf > self.HV_K2*self.safe_distance)):
+            and (vrf is None or (self.velocity <= vrf or drf > self.HV_K1*self.safe_distance)):
 
             if df:
                 p = 1-np.sqrt(self.safe_distance/df)
@@ -179,7 +186,7 @@ class HumanVehicle(Vehicle):
     def calc_acceleration(self, conf, af, vf, df):
 
         # acceleration zone
-        if (not df or (df >= self.HV_K1*self.safe_distance)):
+        if (df is None or (df >= self.HV_K1*self.safe_distance)):
             if self.desired_velocity - self.velocity == 0:
                 a = 0
             elif self.desired_velocity - self.velocity < self.epsilon:
@@ -228,13 +235,13 @@ class Car(HumanVehicle):
         self.HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 9.0
         self.length = 4.0
-        self.extremely_safe_distance = self.length     # meter
+        self.extremely_safe_distance = 4.0     # meter
         self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
 
         self.desired_velocity = np.random.uniform(30.0, 35.0)
-        self.safe_time = 0.8 # seconds, 7m/(30m/s) = 0.23333... s
+        self.safe_time = 0.9 # seconds, 7m/(30m/s) = 0.23333... s
         self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
         self.last_lane_change = time.time()
@@ -262,8 +269,8 @@ class Truck(HumanVehicle):
         self.HV_L    = 1.0  # no idea what this is
         self.HV_AMAX = np.random.uniform(1, 2)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 5.0
-        self.length = 15
-        self.extremely_safe_distance = 10
+        self.length = 15.0
+        self.extremely_safe_distance = 10.0
         self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
