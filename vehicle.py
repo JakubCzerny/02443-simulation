@@ -12,7 +12,7 @@ class Vehicle:
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
-        
+
         self.type = random.choice(self.VEHICLE_TYPES)
 
         self.emergency = 0
@@ -130,7 +130,7 @@ class HumanVehicle(Vehicle):
         p_left = self.prob_left(container, conf, af, vf, df, dlf, vlf, dlb, vlb)
 
         #NEW ONLY SWITCH IF THEY ARE ABOVE 3 SAFE_DISTANCES #####
-        if time.time() - self.last_lane_change > (5.0/conf.speedup) and self.velocity > 2:
+        if time.time() - self.last_lane_change > (5.0/conf.speedup) and self.velocity > 3:
             if (p < p_right) \
                 and (self.lane+1 < conf.nb_lanes) \
                 and (self.position > (3 * self.safe_distance)) \
@@ -239,7 +239,7 @@ class Car(HumanVehicle):
         self.HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 9.0
         self.length = 4.0
-        self.extremely_safe_distance = 4.0     # meter
+        self.extremely_safe_distance = np.random.uniform(2.5, 4)   # meter
         self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
@@ -274,7 +274,7 @@ class Truck(HumanVehicle):
         self.HV_AMAX = np.random.uniform(1, 2)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 5.0
         self.length = 15.0
-        self.extremely_safe_distance = 10.0
+        self.extremely_safe_distance = np.random.uniform(8, 9)
         self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
