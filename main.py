@@ -2,9 +2,7 @@ import time
 
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
-from animation import max_road_len
-#from animation import Animation, AnimationInterrupt
-from animation_opengl import Animation, AnimationInterrupt
+from animation_opengl import Animation
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
@@ -13,9 +11,8 @@ class Config:
     fps = 60
     nb_lanes = 3
     road_len = 600          # meter, set as derived value
-    spawn_rate = 2.0        # cars per second
+    spawn_rate = 1.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
-    extremely_safe_distance = 3.0     # meter
 
     speedup = 1.0           # sec in animation = speedup*sec in simulation
 

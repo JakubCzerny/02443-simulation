@@ -1,7 +1,7 @@
 import numpy as np
 
 from vehicle_container import VehicleContainer as Container
-from vehicle import Vehicle, HumanVehicle
+from vehicle import Vehicle, HumanVehicle, Car, Truck
 
 class Simulation:
 
@@ -33,8 +33,13 @@ class Simulation:
 
         # If the time has come to spawn new vehicle.
         if self._sim_time >= self._time_to_next_spawn:
-            lane = np.random.randint(self._conf.nb_lanes)
-            vehicle = HumanVehicle(lane)
+            p = np.random.rand()
+            if p > 0.9:
+                lane = self._conf.nb_lanes - 1
+                vehicle = Truck(lane)
+            else:
+                lane = np.random.randint(self._conf.nb_lanes)
+                vehicle = Car(lane)
             vehicle.velocity = np.random.uniform(
                         self._conf.speed_range[0],
                         self._conf.speed_range[1])
@@ -43,17 +48,17 @@ class Simulation:
             if self._container.last(lane):
                 last = self._container.last(lane)
                 # If the safe distance is not held, don't spawn.
-                if last.position < self._conf.extremely_safe_distance * 2:
+                if last.position < last.extremely_safe_distance * 2:
                     self._time_to_next_spawn = self._sim_time + \
                         np.random.exponential(1/self._conf.spawn_rate)
                     return
 
                 # Else if distance is below 5 safe_distances, spawn with
                 # velocity depending on car in front.
-                elif last.position < (self._conf.extremely_safe_distance * last.velocity*10):
+                elif last.position < (last.extremely_safe_distance * last.velocity*10):
                     vehicle.velocity = np.random.uniform(
                         last.velocity*0.5,
-                        last.velocity*min(1, last.position/(2*self._conf.extremely_safe_distance) + 1))
+                        last.velocity*min(1, last.position/(2*last.extremely_safe_distance) + 1))
 
 
             # Spawn the car.

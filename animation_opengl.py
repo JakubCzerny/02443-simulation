@@ -3,6 +3,9 @@ import numpy as np
 import pygame
 from pygame.locals import *
 
+import inspect
+from vehicle import Car, Truck
+
 from OpenGL.GL import *
 OpenGL.ERROR_CHECKING = False
 
@@ -113,7 +116,11 @@ class Animation(AnimationBase):
         elif v.desired_velocity-v.velocity < 1:
             glColor3f(0.05, 0.4, 0.4)
 
-        self._draw_rect(xc, yc, 4, 2)
+        if isinstance(v, Car):
+            self._draw_rect(xc, yc, 4, 2)
+        elif isinstance(v, Truck):
+            self._draw_rect(xc, yc, 15, 2)
+
 
         glColor3f(0.0, 0.0, 0.0)
 
