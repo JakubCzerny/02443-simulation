@@ -21,6 +21,10 @@ class Animation:
         pygame.init()
         pygame.display.set_caption('Highway simulation (OpenGL)')
 
+        pygame.display.set_caption('Highway simulation')
+        song = pygame.mixer.Sound('highway-1.wav')
+        song.play(loops = -1)
+
         self._row_length = conf.road_len / conf.rows                     # meter
         self._road_width = ROAD_SPACING + LANE_WIDTH * conf.nb_lanes     # meter
         self._world_height = self._road_width * conf.rows + ROAD_SPACING # meter

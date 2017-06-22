@@ -3,6 +3,7 @@ import time
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
 from animation import max_road_len
+#from animation import Animation, AnimationInterrupt
 from animation_opengl import Animation, AnimationInterrupt
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
 
@@ -14,11 +15,13 @@ class Config:
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     extremely_safe_distance = 3.0     # meter
 
-    speedup = 2.0           # sec in animation = speedup*sec in simulation
+    speedup = 1.0           # sec in animation = speedup*sec in simulation
 
     # Animation
-    window_width = 1800
-    rows = 2                # number of wrapped roads vertically
+    window_height = 370
+    window_width = 2500
+    scale = 4  
+    rows = 3               # number of wrapped roads vertically
 
 def start_sim():
     conf = Config()

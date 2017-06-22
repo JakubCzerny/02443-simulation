@@ -24,10 +24,13 @@ class Animation:
 
         pygame.init()
 
+        song = pygame.mixer.Sound('highway-1.wav')
+
         self._clock = pygame.time.Clock()
+        pygame.display.set_caption('Highway simulation')
+        song.play(loops = -1)
 
         self._screen = pygame.display.set_mode((conf.window_width, conf.window_height))
-        pygame.display.set_caption('Highway simulation')
 
         # Load vehicle types
         car_type_image = pygame.transform.scale(pygame.image.load('car_side.png'),
@@ -39,7 +42,7 @@ class Animation:
 
     def draw_frame(self):
         self._handle_events()
-        self._screen.fill(GRASS)
+        self._screen.fill(WHITE)
         self._draw_road()
 
         for v in self._sim:
