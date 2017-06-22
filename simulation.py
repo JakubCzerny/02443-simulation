@@ -66,8 +66,8 @@ class Simulation:
             # Spawn the car.
             self._container.spawn(vehicle)
             if isinstance(vehicle, Truck) and self.sound:
-                    truckyeah = pygame.mixer.Sound('truckyeah.wav')
-                    truckyeah.play()
+                truckyeah = pygame.mixer.Sound('truckyeah.wav')
+                truckyeah.play()
 
             # Find time to next car.
             self._time_to_next_spawn = self._sim_time + \
@@ -104,7 +104,7 @@ class SimulationWithHandlers(Simulation):
 
     def time_step(self, dt):
         for h in self._handlers:
-            h.before_time_step(dt)
+            h.before_time_step(dt, self._sim_time)
 
         super().time_step(dt)
 
