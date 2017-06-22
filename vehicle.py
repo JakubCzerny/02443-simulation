@@ -56,12 +56,6 @@ class HumanVehicle(Vehicle):
     def __init__(self, lane, position=0.0):
         super().__init__(lane, position)
 
-        # self.desired_velocity = np.random.uniform(25.0, 35.0)
-        # self.safe_time = 0.8 # seconds, 7m/(30m/s) = 0.23333... s
-        # self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
-        # self.animlane = self.lane
-        # self.last_lane_change = time.time()
-
     def update(self, conf, container, dt):
         # First update position and velocity using previous acc/vel...
         super().update(conf, container, dt)
