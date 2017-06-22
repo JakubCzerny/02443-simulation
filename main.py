@@ -1,8 +1,8 @@
 import time
+import pygame
 
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
-from animation_opengl import Animation
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler, AverageSpeedHandler
@@ -18,7 +18,6 @@ class Config:
 
     # Animation
     window_height = 370
-    scale = 4  
     rows = 3               # number of wrapped roads vertically
     window_width = 1800
 
@@ -33,15 +32,22 @@ def start_sim():
     conf = Config()
 
     sim = SimulationWithHandlers(conf)
+    anim = Animation(sim, conf)
+    dt = 1./conf.fps
 
     stats = StatsEvHandler()
     sim.add_handler(stats)
     avgspeed = AverageSpeedHandler()
     sim.add_handler(avgspeed)
-    #sim.add_handler(SlowZoneEvHandler(300, 350, max_velocity=7))   # uncomment this if you want a slow zone
 
-    anim = Animation(sim, conf)
-    dt = 1./conf.fps
+    slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
+    slow_zone1.enabled = False   # disabled by default, enable by pressing S
+    sim.add_handler(slow_zone1)
+    anim.register_interactive_sim_handler(slow_zone1, pygame.K_s)
+    slow_zone2 = SlowZoneEvHandler(300, 450, max_velocity=0)
+    slow_zone2.enabled = False   # disabled by default, enable by pressing T
+    sim.add_handler(slow_zone2)
+    anim.register_interactive_sim_handler(slow_zone2, pygame.K_t)
 
     try:
         while True:
@@ -54,7 +60,6 @@ def start_sim():
         anim.destroy()
 
     print(stats)
-    print(avgspeed)
     avgspeed.plot()
 
 if __name__ == "__main__":

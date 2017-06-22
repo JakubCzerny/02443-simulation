@@ -74,7 +74,6 @@ class AverageSpeedHandler(SimEventHandler):
         self.averageSpeed += vehicle.velocity
         self.numberOfVehicles += 1
 
-
     def after_time_step(self, dt, sim_time):
         self.updatecount += 1
         if self.updatecount > 3: #Only update ever 3. timestep 
