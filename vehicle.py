@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import pygame
 class Vehicle:
 
     def __init__(self, lane, position=0.0):
@@ -35,6 +36,10 @@ class Vehicle:
 
             print('WARNING: Emergency speed change -- fix driver behavior in', \
                     self.__class__.__name__)
+
+            if conf.sound:
+                scream = pygame.mixer.Sound('wilhem.wav')
+                scream.play()
         else:
             self.position = new_position
             self.velocity = new_velocity
@@ -219,7 +224,7 @@ class Car(HumanVehicle):
         self.HV_K1   = 3.0  # scaling factors on safety distance ds to separate space to...
         self.HV_K2   = 1.8  # ... car in front into behavioral zones.
         self.HV_A0   = 1.0  # small constant acceleration to reach desired velocity
-        self.HV_L    = 1.0  # no idea what this is
+        self.HV_L    = np.random.uniform(1, 20)  # no idea what this is
         self.HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 9.0
         self.length = 4.0

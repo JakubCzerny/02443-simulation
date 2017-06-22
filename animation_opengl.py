@@ -3,9 +3,6 @@ import numpy as np
 import pygame
 from pygame.locals import *
 
-import inspect
-from vehicle import Car, Truck
-
 from OpenGL.GL import *
 OpenGL.ERROR_CHECKING = False
 
@@ -23,8 +20,9 @@ class Animation(AnimationBase):
         pygame.display.set_caption('Highway simulation (OpenGL)')
 
         pygame.display.set_caption('Highway simulation')
-        song = pygame.mixer.Sound('highway-1.wav')
-        song.play(loops = -1)
+        if conf.sound:
+            song = pygame.mixer.Sound('highway-1.wav')
+            song.play(loops = -1)
 
         self._row_length = conf.road_len / conf.rows                     # meter
         self._road_width = ROAD_SPACING + LANE_WIDTH * conf.nb_lanes     # meter
@@ -117,7 +115,6 @@ class Animation(AnimationBase):
             self._draw_rect(xc, yc, v.length, 2)
         elif isinstance(v, Truck):
             self._draw_rect(xc, yc, v.length, 2)
-
 
         glColor3f(0.0, 0.0, 0.0)
 
