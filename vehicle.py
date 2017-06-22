@@ -50,7 +50,6 @@ HV_K    = 1.4  # distance factor
 HV_K1   = 2.5  # scaling factors on safety distance ds to separate space to...
 HV_K2   = 1.8  # ... car in front into behavioral zones.
 HV_A0   = 1.0  # small constant acceleration to reach desired velocity
-HV_L    = 1.0  # no idea what this is
 HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
 HV_BRAKING = 9.0
 
@@ -65,6 +64,7 @@ class HumanVehicle(Vehicle):
         super().__init__(lane, position)
 
         self.desired_velocity = np.random.uniform(25.0, 35.0)
+        self.lumbda = np.random.uniform(1, 20)  # no idea what this is
         self.safe_time = 0.8 # seconds, 7m/(30m/s) = 0.23333... s
         self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
         self.animlane = self.lane
@@ -172,18 +172,18 @@ class HumanVehicle(Vehicle):
             elif self.desired_velocity - self.velocity < self.epsilon:
                 a = HV_A0
             else:
-                a = min(HV_AMAX, (self.desired_velocity - self.velocity) / (self.velocity+0.01) * HV_L * HV_AMAX)
+                a = min(HV_AMAX, (self.desired_velocity - self.velocity) / (self.velocity+0.01) * self.lumbda * HV_AMAX)
         # adaptive zone
         elif (df < HV_K1*self.safe_distance) and (df > HV_K2*self.safe_distance):
             if self.velocity > vf:
-                a = max(-HV_BRAKING, (vf - self.velocity) / (vf+0.01) * HV_L * HV_BRAKING)
+                a = max(-HV_BRAKING, (vf - self.velocity) / (vf+0.01) * self.lumbda * HV_BRAKING)
             else:
                 if self.desired_velocity - self.velocity == 0:
                     a = 0
                 elif self.desired_velocity - self.velocity < self.epsilon:
                     a = HV_A0
                 else:
-                    a = min(HV_AMAX, (vf - self.velocity) / (vf+0.01) * HV_L * HV_AMAX)
+                    a = min(HV_AMAX, (vf - self.velocity) / (vf+0.01) * self.lumbda * HV_AMAX)
         # braking zone
         else:
             if df < HV_K*self.safe_distance:
