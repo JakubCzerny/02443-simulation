@@ -10,11 +10,11 @@ class Config:
     fps = 60
     nb_lanes = 3
     road_len = 600          # meter, set as derived value
-    spawn_rate = 3.0        # cars per second
+    spawn_rate = 2.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
     extremely_safe_distance = 3.0     # meter
 
-    speedup = 1.0           # sec in animation = speedup*sec in simulation
+    speedup = 2.0           # sec in animation = speedup*sec in simulation
 
     # Animation
     window_width = 1800
