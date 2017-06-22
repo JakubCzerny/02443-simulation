@@ -2,6 +2,7 @@ import numpy as np
 
 from vehicle_container import VehicleContainer as Container
 from vehicle import Vehicle, HumanVehicle, Car, Truck
+import pygame
 
 class Simulation:
 
@@ -10,6 +11,7 @@ class Simulation:
         self._container = Container(conf.nb_lanes)
         self._sim_time = 0
         self._time_to_next_spawn = 0
+        self.sound = conf.sound
 
     def time_step(self, dt):
         # loop over all vehicles, update all vehicles
@@ -37,6 +39,9 @@ class Simulation:
             if p > 0.9:
                 lane = self._conf.nb_lanes - 1
                 vehicle = Truck(lane)
+                if self.sound:
+                    truckyeah = pygame.mixer.Sound('truckyeah.wav')
+                    truckyeah.play()
             else:
                 lane = np.random.randint(self._conf.nb_lanes)
                 vehicle = Car(lane)
