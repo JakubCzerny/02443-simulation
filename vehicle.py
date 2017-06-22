@@ -12,9 +12,7 @@ class Vehicle:
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
-        
         self.type = random.choice(self.VEHICLE_TYPES)
-
         self.emergency = 0
 
     def __lt__(self, other):
@@ -277,7 +275,8 @@ class Truck(HumanVehicle):
         self.epsilon = np.random.uniform(1.0, 3.0) # sensitivity to speed up
         self.animlane = self.lane
         self.last_lane_change = time.time()
-
+        self.type = 'long_truck'
+        
     def update(self, conf, container, dt):
         super().update(conf, container, dt)
 

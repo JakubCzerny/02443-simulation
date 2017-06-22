@@ -48,6 +48,7 @@ class Animation(AnimationBase):
             'police_car': self.TexFromIMG("police_car.png"),
             'ambulance':  self.TexFromIMG("ambulance.png"),
             'red_truck':  self.TexFromIMG("red_truck.png"),
+            'long_truck': self.TexFromIMG("long_truck.png"),
             'car':        self.TexFromIMG("car.png")
         }
         
@@ -80,21 +81,7 @@ class Animation(AnimationBase):
         self._clock.tick(self._conf.fps)
 
     def _draw_asphalt(self):
-        glEnable(GL_TEXTURE_2D)
-        # glEnable(GL_BLEND)
-        glBindTexture(GL_TEXTURE_2D, self.asphalt)
-
-        glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0);
-        glVertex2f(0, 2)
-        glTexCoord2f(1.0*16, 0.0);
-        glVertex2f(200, 2)
-        glTexCoord2f(1.0*16, 1.0*16);
-        glVertex2f(200, 44)
-        glTexCoord2f(0.0, 1.0*16);
-        glVertex2f(0, 44)
-        glEnd()
-
+        glClearColor(0.3, 0.3, 0.3, 0.5)
 
     def _draw_road(self):
         glPushAttrib(GL_ENABLE_BIT)
@@ -128,16 +115,15 @@ class Animation(AnimationBase):
         xc = v.position % self._row_length
         yc = self._y_offset(row, v.animlane) + LANE_WIDTH/2
         
-        glEnable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, self.textures[v.type])
-
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         glBegin(GL_QUADS)
-        self._draw_rect(xc, yc, 4, 2)
+        self._draw_rect(xc, yc, v.length, 2)
         glEnd()
+
         glDisable(GL_TEXTURE_2D)
 
         glBegin(GL_QUADS)
@@ -155,7 +141,7 @@ class Animation(AnimationBase):
         if isinstance(v, Car):
             self._draw_rect(xc-0.5, yc, 0.5, 0.5)
         elif isinstance(v, Truck):
-            self._draw_rect(xc, yc, v.length, 2)
+            self._draw_rect(xc, yc, 0.5, 0.5)
 
         glColor3f(0.0, 0.0, 0.0)            
         glEnd()
@@ -207,13 +193,16 @@ class Animation(AnimationBase):
         img_data = pygame.image.tostring(img, "RGBA", 1)
 
         texture = glGenTextures(1)
-        glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+        
         glBindTexture(GL_TEXTURE_2D, texture)
 
-        # glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-        # glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD)
+
         # glPixelStorei(GL_UNPACK_ALIGNMENT, 4)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.get_width(), img.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
         return texture
