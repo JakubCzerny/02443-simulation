@@ -1,7 +1,7 @@
 import numpy as np
 
 from vehicle_container import VehicleContainer as Container
-from vehicle import Vehicle, HumanVehicle, Car, Truck
+from vehicle import Vehicle, HumanVehicle, Car, Truck, AutomaticCar
 import pygame
 
 class Simulation:
@@ -36,12 +36,15 @@ class Simulation:
         # If the time has come to spawn new vehicle.
         if self._sim_time >= self._time_to_next_spawn:
             p = np.random.rand()
-            if p > 0.9:
+            lane = np.random.randint(self._conf.nb_lanes)
+            if p < 0.45:
+                vehicle = Car(lane)
+            elif p >= 0.45 and p < 0.90:
+                vehicle = AutomaticCar(lane)
+            else: # p >= 0.9
                 lane = self._conf.nb_lanes - 1
                 vehicle = Truck(lane)
-            else:
-                lane = np.random.randint(self._conf.nb_lanes)
-                vehicle = Car(lane)
+
             vehicle.velocity = np.random.uniform(
                         self._conf.speed_range[0],
                         self._conf.speed_range[1])
