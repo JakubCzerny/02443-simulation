@@ -6,6 +6,9 @@ from pygame.locals import *
 from OpenGL.GL import *
 OpenGL.ERROR_CHECKING = False
 
+import inspect
+from vehicle import Car, Truck
+
 from animation_base import AnimationBase
 
 LANE_WIDTH   = 4.0
