@@ -79,7 +79,7 @@ class HumanVehicle(Vehicle):
 
         if not d:
             return True
-        elif d > max(v.length, self.HV_K*self.safe_distance):
+        elif d > max(v.length, self.HV_K*v.safe_distance):
             return True
         else:
             return False
@@ -229,6 +229,7 @@ class Car(HumanVehicle):
         self.HV_BRAKING = 9.0
         self.length = 4.0
         self.extremely_safe_distance = self.length     # meter
+        self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
 
@@ -263,7 +264,7 @@ class Truck(HumanVehicle):
         self.HV_BRAKING = 5.0
         self.length = 15
         self.extremely_safe_distance = 10
-
+        self.safe_distance = self.extremely_safe_distance
 
         super().__init__(lane, position)
 
