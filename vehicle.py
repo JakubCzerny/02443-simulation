@@ -1,14 +1,17 @@
 import numpy as np
 import time
+import random
+
 class Vehicle:
+    VEHICLE_TYPES = ["car", "black_car", "yellow_car", "police_car", "red_truck", "ambulance"]
 
     def __init__(self, lane, position=0.0):
         self.lane = lane
         self.position = position # meter
         self.velocity = 0.0      # meter/sec
         self.acceleration = 0.0  # meter/sec²
-
-        self.type = 'car'
+        
+        self.type = random.choice(self.VEHICLE_TYPES)
 
         self.emergency = 0
 
@@ -16,8 +19,8 @@ class Vehicle:
         return self.position < other.position
 
     def __str__(self):
-        return "Vehicle[lane={:2n}, pos={:06.2f}, vel={:06.2f}, acc={:06.2f}]" \
-            .format(self.lane, self.position, self.velocity, self.acceleration)
+        return "Vehicle[type={:s}, lane={:2n}, pos={:06.2f}, vel={:06.2f}, acc={:06.2f}]" \
+            .format(self.type, self.lane, self.position, self.velocity, self.acceleration)
 
     def update(self, conf, container, dt):
         new_position = self.position + dt*self.velocity + .5*dt*dt*self.acceleration

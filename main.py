@@ -4,7 +4,7 @@ from vehicle import Vehicle
 from simulation import SimulationWithHandlers
 from animation import max_road_len
 #from animation import Animation, AnimationInterrupt
-from animation_opengl import Animation, AnimationInterrupt
+from animation_opengl import Animation#, AnimationInterrupt
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
