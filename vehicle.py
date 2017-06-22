@@ -40,7 +40,7 @@ class Vehicle:
                     self.__class__.__name__)
 
             if conf.sound:
-                scream = pygame.mixer.Sound('wilhem.wav')
+                scream = pygame.mixer.Sound('data/wilhem.wav')
                 scream.play()
         else:
             self.position = new_position

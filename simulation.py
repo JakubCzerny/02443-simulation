@@ -66,7 +66,7 @@ class Simulation:
             # Spawn the car.
             self._container.spawn(vehicle)
             if isinstance(vehicle, Truck) and self.sound:
-                truckyeah = pygame.mixer.Sound('truckyeah.wav')
+                truckyeah = pygame.mixer.Sound('data/truckyeah.wav')
                 truckyeah.play()
 
             # Find time to next car.

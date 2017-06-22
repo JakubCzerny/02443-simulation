@@ -22,7 +22,7 @@ class Animation(AnimationBase):
         pygame.init()
         pygame.display.set_caption('Highway simulation (OpenGL)')
         if conf.sound:
-            song = pygame.mixer.Sound('highway-1.wav')
+            song = pygame.mixer.Sound('data/highway-1.wav')
             song.play(loops = -1)
 
         self._row_length = conf.road_len / conf.rows                     # meter
@@ -40,17 +40,15 @@ class Animation(AnimationBase):
         glScalef(2.0, 2.0, 1.0)
         glScalef(1/self._row_length, 1/self._world_height, 1.0)
         glClearColor(1.0, 1.0, 1.0, 1.0)
-        
-        self.asphalt = self.TexFromIMG("asphalt.jpg")
 
         self.textures = {
-            'yellow_car': self.TexFromIMG("yellow_car.png"),
-            'black_car':  self.TexFromIMG("black_car.png"),
-            'police_car': self.TexFromIMG("police_car.png"),
-            'ambulance':  self.TexFromIMG("ambulance.png"),
-            'red_truck':  self.TexFromIMG("red_truck.png"),
-            'long_truck': self.TexFromIMG("long_truck.png"),
-            'car':        self.TexFromIMG("car.png")
+            'yellow_car': self.TexFromIMG("data/yellow_car.png"),
+            'black_car':  self.TexFromIMG("data/black_car.png"),
+            'police_car': self.TexFromIMG("data/police_car.png"),
+            'ambulance':  self.TexFromIMG("data/ambulance.png"),
+            'red_truck':  self.TexFromIMG("data/red_truck.png"),
+            'long_truck': self.TexFromIMG("data/long_truck.png"),
+            'car':        self.TexFromIMG("data/car.png")
         }
         
     def _confirm_display(self):
@@ -118,10 +116,12 @@ class Animation(AnimationBase):
         
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
+        
         glBindTexture(GL_TEXTURE_2D, self.textures[v.type])
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         glBegin(GL_QUADS)
+        glColor3f(0.0, 0.0, 0.0)
         self._draw_rect(xc, yc, v.length, 2)
         glEnd()
 
@@ -152,13 +152,13 @@ class Animation(AnimationBase):
         x0 = xc-w2; y0 = yc-h2
         x1 = xc+w2; y1 = yc+h2
 
-        glTexCoord2f(0.0, 0.0);
+        glTexCoord2f(0.01, 0.01)
         glVertex2f(x0, y0)
-        glTexCoord2f(1.0, 0.0);
+        glTexCoord2f(0.95, 0.01)
         glVertex2f(x1, y0)
-        glTexCoord2f(1.0, 1.0);
+        glTexCoord2f(0.95, 0.95)
         glVertex2f(x1, y1)
-        glTexCoord2f(0.0, 1.0);
+        glTexCoord2f(0.01, 0.95)
         glVertex2f(x0, y1)
 
     def _handle_event(self, event):
@@ -197,11 +197,11 @@ class Animation(AnimationBase):
         
         glBindTexture(GL_TEXTURE_2D, texture)
 
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD)
 
         # glPixelStorei(GL_UNPACK_ALIGNMENT, 4)
