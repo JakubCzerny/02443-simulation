@@ -48,7 +48,8 @@ class Animation(AnimationBase):
             'ambulance':  self.TexFromIMG("data/ambulance.png"),
             'red_truck':  self.TexFromIMG("data/red_truck.png"),
             'long_truck': self.TexFromIMG("data/long_truck.png"),
-            'car':        self.TexFromIMG("data/car.png")
+            'car':        self.TexFromIMG("data/car.png"),
+            'tesla':      self.TexFromIMG("data/tesla.png")
         }
         
     def _confirm_display(self):

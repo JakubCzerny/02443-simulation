@@ -5,7 +5,7 @@ import random
 import pygame
 
 class Vehicle:
-    VEHICLE_TYPES = ["car", "black_car", "yellow_car", "police_car", "red_truck", "ambulance"]
+    VEHICLE_TYPES = ["tesla", "car", "black_car", "yellow_car", "police_car", "red_truck", "ambulance"]
 
     def __init__(self, lane, position=0.0):
         self.lane = lane
