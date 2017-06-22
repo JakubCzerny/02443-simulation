@@ -76,7 +76,7 @@ class StatsEvHandler(SimEventHandler):
 class AverageSpeedHandler(SimEventHandler):
 
     """
-    Tracks the average speed of the vehicles. 
+    Tracks the average speed of the vehicles.
     """
     def __init__(self):
         self.averageSpeed = 0
@@ -91,7 +91,7 @@ class AverageSpeedHandler(SimEventHandler):
 
     def after_time_step(self, dt, sim_time):
         self.updatecount += 1
-        if self.updatecount > 1: #Only update ever 3. timestep 
+        if self.updatecount > 1: #Only update ever 3. timestep
             if self.numberOfVehicles > 0:
                 self.averageSpeedList.append(self.averageSpeed / self.numberOfVehicles)
                 self.averageSpeed = 0
@@ -111,7 +111,7 @@ class AverageSpeedHandler(SimEventHandler):
         #plt.plot(self.simTimeList,speed, linewidth = 2)
         plt.plot(self.simTimeList,r, linewidth = 4)
         plt.grid()
-        
+
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
         plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
@@ -152,5 +152,34 @@ class ThroughPutHandler(SimEventHandler):
 
 class TravelTimeHandler(SimEventHandler):
 
-    def __init__(self):
-        pass
+    def __init__(self, sim):
+        self._sim = sim
+        self._dict = {}
+
+    def after_vehicle_spawn(self, vehicle):
+        self._dict[vehicle] = (self._sim._sim_time, 0)
+
+    def before_vehicle_despawn(self, vehicle):
+        p = self._dict[vehicle]
+        self._dict[vehicle] = (p[0], self._sim._sim_time - p[0])
+    def plot(self):
+        times = []
+        travel_times = []
+
+        for k in self._dict:
+            p = self._dict[k]
+            if p[1] != 0:
+                times.append(p[0])
+                travel_times.append(p[1])
+
+        if len(times) == 0:
+            return
+
+        print("Average/min/max travel times",
+                np.mean(travel_times),
+                np.min(travel_times),
+                np.max(travel_times))
+
+        plt.figure()
+        plt.plot(times, travel_times)
+        plt.show()

@@ -46,6 +46,8 @@ def start_sim():
     sim.add_handler(avgspeed)
     throughput = ThroughPutHandler()
     sim.add_handler(throughput)
+    traveltime = TravelTimeHandler(sim)
+    sim.add_handler(traveltime)
 
     slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
     slow_zone1.enabled = False   # disabled by default, enable by pressing O
@@ -70,6 +72,7 @@ def start_sim():
     print(stats)
     #avgspeed.plot()
     #throughput.plot()
+    #traveltime.plot()
 
 if __name__ == "__main__":
     start_sim()
