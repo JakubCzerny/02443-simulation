@@ -1,6 +1,7 @@
 import pygame
 from draw_dashed_line import draw_dashed_line
 
+from animation_base import AnimationBase
 from vehicle import Vehicle
 
 WHITE = (255, 255, 255)
@@ -8,36 +9,34 @@ BLACK = (0,   0,   0   )
 GREY  = (150, 150, 150)
 ROAD  = (220, 220, 220)
 RED   = (255, 0,   0)
-GRASS = (230, 200, 240)
+GRASS = (230, 230, 240)
 
 LANE_WIDTH = 4   # meter
 LANE_SPACING = 3 # meter
 
-class AnimationInterrupt(BaseException):
-    pass
-
-class Animation:
+class Animation(AnimationBase):
 
     def __init__(self, sim, conf):
-        self._sim = sim
-        self._conf = conf
+        super().__init__(sim, conf)
+
+        if conf.road_len == -1:
+            conf.road_len = max_road_len(conf)
+            print("set road_len to", conf.road_len)
 
         pygame.init()
+        pygame.display.set_caption('Highway simulation')
 
         self._clock = pygame.time.Clock()
-
         self._screen = pygame.display.set_mode((conf.window_width, conf.window_height))
-        pygame.display.set_caption('Highway simulation')
 
         # Load vehicle types
         car_type_image = pygame.transform.scale(pygame.image.load('car_side.png'),
                 (int(4*conf.scale), int(2*conf.scale)))
         self._vtypes = {'car': car_type_image}
 
-    def destroy(self):
-        pygame.quit()
-
     def draw_frame(self):
+        super().draw_frame()
+
         self._handle_events()
         self._screen.fill(GRASS)
         self._draw_road()
@@ -92,11 +91,6 @@ class Animation:
     def _y_offset(self, row, lane):
         sc = self._conf.scale
         return sc*(row*(self._conf.nb_lanes*LANE_WIDTH+LANE_SPACING) + LANE_SPACING + lane*LANE_WIDTH)
-
-    def _handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                raise AnimationInterrupt
 
 def max_road_len(conf):
     """ Max road_len that fits on the screen given the configuration. """

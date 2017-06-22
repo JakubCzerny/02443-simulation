@@ -6,17 +6,15 @@ from pygame.locals import *
 from OpenGL.GL import *
 OpenGL.ERROR_CHECKING = False
 
-class AnimationInterrupt(BaseException):
-    pass
+from animation_base import AnimationBase
 
 LANE_WIDTH   = 4.0
 ROAD_SPACING = 2.5
 
-class Animation:
+class Animation(AnimationBase):
 
     def __init__(self, sim, conf):
-        self._sim = sim
-        self._conf = conf
+        super().__init__(sim, conf)
 
         pygame.init()
         pygame.display.set_caption('Highway simulation (OpenGL)')
@@ -49,7 +47,7 @@ class Animation:
         pygame.quit()
 
     def draw_frame(self):
-        self._handle_events()
+        super().draw_frame()
 
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
@@ -121,17 +119,13 @@ class Animation:
         glVertex2f(x1, y1)
         glVertex2f(x0, y1)
 
-    def _handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                raise AnimationInterrupt
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    raise AnimationInterrupt
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    pos, lane = self._pixel_pox_to_pos_lane(event.pos[0], event.pos[1])
-                    self._slow_down_cars(pos)
+    def _handle_event(self, event):
+        super()._handle_event(event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                pos, lane = self._pixel_pox_to_pos_lane(event.pos[0], event.pos[1])
+                self._slow_down_cars(pos)
 
     def _y_offset(self, row, lane):
         return row*self._road_width + ROAD_SPACING + lane*LANE_WIDTH

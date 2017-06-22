@@ -2,8 +2,8 @@ import time
 
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
-from animation import max_road_len
-from animation_opengl import Animation, AnimationInterrupt
+from animation_base import AnimationInterrupt
+from animation_opengl import Animation
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
 
 class Config:
@@ -18,7 +18,12 @@ class Config:
 
     # Animation
     window_width = 1800
-    rows = 2                # number of wrapped roads vertically
+    rows = 3                # number of wrapped roads vertically
+
+    # Non-OpenGL animation specific configuration
+    #window_height = 500
+    #scale = 10
+    #road_len = -1
 
 def start_sim():
     conf = Config()
