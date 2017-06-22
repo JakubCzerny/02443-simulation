@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 class SimEventHandler:
     """
     A simulation handler allows you to add additional behavior to the base
@@ -70,6 +71,9 @@ class StatsEvHandler(SimEventHandler):
 
 class AverageSpeedHandler(SimEventHandler):
 
+    """
+    Tracks the average speed of the vehicles. 
+    """
     def __init__(self):
         self.averageSpeed = 0
         self.numberOfVehicles = 0
@@ -83,7 +87,7 @@ class AverageSpeedHandler(SimEventHandler):
 
     def after_time_step(self, dt, sim_time):
         self.updatecount += 1
-        if self.updatecount > 3: #Only update ever 3. timestep
+        if self.updatecount > 1: #Only update ever 3. timestep 
             if self.numberOfVehicles > 0:
                 self.averageSpeedList.append(self.averageSpeed / self.numberOfVehicles)
                 self.averageSpeed = 0
@@ -92,9 +96,20 @@ class AverageSpeedHandler(SimEventHandler):
             self.updatecount = 0
 
     def plot(self):
+        windowSize = 5
+        speed = pd.DataFrame(self.averageSpeedList)
+        r = speed.rolling(window = windowSize) # Average last 10 values
+        r = r.mean()
+        time = pd.DataFrame(self.simTimeList)
+
         plt.figure()
-        plt.plot(self.simTimeList, self.averageSpeedList)
-        plt.xlabel("Time [s]")
-        plt.ylabel("Average speed of cars [m/s]")
+
+        #plt.plot(self.simTimeList,speed, linewidth = 2)
+        plt.plot(self.simTimeList,r, linewidth = 4)
+        plt.grid()
+
+        
+        plt.xlabel("Time [s]", fontsize = 23)
+        plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
+        plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
         plt.show()
-        print(len(self.simTimeList))

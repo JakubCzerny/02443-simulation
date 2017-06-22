@@ -3,6 +3,9 @@ import pygame
 
 from vehicle import Vehicle
 from simulation import SimulationWithHandlers
+from animation import max_road_len
+from animation_opengl import Animation
+
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
 from sim_event_handler import SlowZoneEvHandler, StatsEvHandler, AverageSpeedHandler
@@ -21,7 +24,7 @@ class Config:
     rows = 3               # number of wrapped roads vertically
     window_width = 1800
 
-    sound = False
+    sound = True
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
@@ -60,7 +63,7 @@ def start_sim():
         anim.destroy()
 
     print(stats)
-    avgspeed.plot()
+    # avgspeed.plot()
 
 if __name__ == "__main__":
     start_sim()
