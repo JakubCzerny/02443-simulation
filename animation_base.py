@@ -27,10 +27,11 @@ class AnimationBase:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 raise AnimationInterrupt
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-                raise AnimationInterrupt
-            else:
-                self._handle_event(event)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    raise AnimationInterrupt
+
+            self._handle_event(event)
 
     def _handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -41,4 +42,17 @@ class AnimationBase:
                     print("Enabled handler", h)
                 else:
                     print("Disabled handler", h)
-
+            elif event.key == pygame.K_s:
+                if event.mod & pygame.KMOD_SHIFT:
+                    if self._conf.speedup > 0:
+                        self._conf.speedup -= 1
+                else:
+                    self._conf.speedup += 1
+                print('speedup =', self._conf.speedup)
+            elif event.key == pygame.K_r:
+                if event.mod & pygame.KMOD_SHIFT:
+                    if self._conf.spawn_rate > 0.5:
+                        self._conf.spawn_rate -= 0.5
+                else:
+                    self._conf.spawn_rate += 0.5
+                print('spawn_rate =', self._conf.spawn_rate)

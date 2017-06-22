@@ -42,6 +42,7 @@ class Simulation:
             else:
                 lane = np.random.randint(self._conf.nb_lanes)
                 vehicle = Car(lane)
+
             vehicle.velocity = np.random.uniform(
                         self._conf.speed_range[0],
                         self._conf.speed_range[1])
@@ -64,7 +65,9 @@ class Simulation:
 
 
             # Spawn the car.
-            self._container.spawn(vehicle)
+            self._spawn_vehicle(vehicle)
+
+            # Play an appropriate truck sound
             if isinstance(vehicle, Truck) and self.sound:
                 truckyeah = pygame.mixer.Sound('data/truckyeah.wav')
                 truckyeah.play()
@@ -72,6 +75,9 @@ class Simulation:
             # Find time to next car.
             self._time_to_next_spawn = self._sim_time + \
                     np.random.exponential(1/self._conf.spawn_rate)
+
+    def _spawn_vehicle(self, vehicle):
+        self._container.spawn(vehicle)
 
     def find_vehicle(self, pos, lane, max_dist=10):
         v = Vehicle(lane)
@@ -119,6 +125,12 @@ class SimulationWithHandlers(Simulation):
 
         for h in self._handlers:
             h.after_vehicle_update(dt, vehicle)
+
+    def _spawn_vehicle(self, vehicle):
+        super()._spawn_vehicle(vehicle)
+
+        for h in self._handlers:
+            h.after_vehicle_spawn(vehicle)
 
     def _despawn_vehicle(self, vehicle):
         for h in self._handlers:
