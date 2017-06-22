@@ -37,8 +37,9 @@ class Vehicle:
             print('WARNING: Emergency speed change -- fix driver behavior in', \
                     self.__class__.__name__)
 
-            scream = pygame.mixer.Sound('wilhem.wav')
-            scream.play()
+            if conf.sound:
+                scream = pygame.mixer.Sound('wilhem.wav')
+                scream.play()
         else:
             self.position = new_position
             self.velocity = new_velocity
