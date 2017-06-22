@@ -104,7 +104,7 @@ class SimulationWithHandlers(Simulation):
         super().time_step(dt)
 
         for h in self._handlers:
-            h.after_time_step(dt)
+            h.after_time_step(dt, self._sim_time)
 
     def time_step_vehicle(self, vehicle, dt):
         for h in self._handlers:

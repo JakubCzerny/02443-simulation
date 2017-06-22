@@ -5,7 +5,7 @@ from simulation import SimulationWithHandlers
 from animation_opengl import Animation
 from animation_base import AnimationInterrupt
 from animation_opengl import Animation
-from sim_event_handler import SlowZoneEvHandler, StatsEvHandler
+from sim_event_handler import SlowZoneEvHandler, StatsEvHandler, AverageSpeedHandler
 
 class Config:
     fps = 60
@@ -36,6 +36,8 @@ def start_sim():
 
     stats = StatsEvHandler()
     sim.add_handler(stats)
+    avgspeed = AverageSpeedHandler()
+    sim.add_handler(avgspeed)
     #sim.add_handler(SlowZoneEvHandler(300, 350, max_velocity=7))   # uncomment this if you want a slow zone
 
     anim = Animation(sim, conf)
@@ -52,6 +54,8 @@ def start_sim():
         anim.destroy()
 
     print(stats)
+    print(avgspeed)
+    avgspeed.plot()
 
 if __name__ == "__main__":
     start_sim()

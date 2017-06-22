@@ -1,4 +1,4 @@
-
+import matplotlib.pyplot as plt
 class SimEventHandler:
     """
     A simulation handler allows you to add additional behavior to the base
@@ -15,7 +15,7 @@ class SimEventHandler:
     def before_time_step(self, dt):
         pass
 
-    def after_time_step(self, dt):
+    def after_time_step(self, dt, sim_time):
         pass
 
     def before_vehicle_update(self, dt, vehicle):
@@ -60,3 +60,35 @@ class StatsEvHandler(SimEventHandler):
         Statistics summary:
          - unspawned_count: {}
         """.format(self.unspawned_count)
+
+class AverageSpeedHandler(SimEventHandler):
+
+    def __init__(self):
+        self.averageSpeed = 0
+        self.numberOfVehicles = 0
+        self.averageSpeedList = []
+        self.simTimeList = []
+        self.updatecount = 0
+
+    def after_vehicle_update(self, dt, vehicle):
+        self.averageSpeed += vehicle.velocity
+        self.numberOfVehicles += 1
+
+
+    def after_time_step(self, dt, sim_time):
+        self.updatecount += 1
+        if self.updatecount > 3: #Only update ever 3. timestep 
+            if self.numberOfVehicles > 0:
+                self.averageSpeedList.append(self.averageSpeed / self.numberOfVehicles)
+                self.averageSpeed = 0
+                self.numberOfVehicles = 0
+                self.simTimeList.append(sim_time)
+            self.updatecount = 0
+
+    def plot(self):
+        plt.figure()
+        plt.plot(self.simTimeList, self.averageSpeedList)
+        plt.xlabel("Time [s]")
+        plt.ylabel("Average speed of cars [m/s]")
+        plt.show()
+        print(len(self.simTimeList))
