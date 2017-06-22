@@ -11,7 +11,6 @@ class Simulation:
         self._container = Container(conf.nb_lanes)
         self._sim_time = 0
         self._time_to_next_spawn = 0
-        self.sound = conf.sound
 
     def time_step(self, dt):
         # loop over all vehicles, update all vehicles
@@ -68,7 +67,7 @@ class Simulation:
             self._spawn_vehicle(vehicle)
 
             # Play an appropriate truck sound
-            if isinstance(vehicle, Truck) and self.sound:
+            if isinstance(vehicle, Truck) and self._conf.sound:
                 truckyeah = pygame.mixer.Sound('data/truckyeah.wav')
                 truckyeah.play()
 

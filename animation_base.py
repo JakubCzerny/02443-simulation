@@ -51,8 +51,14 @@ class AnimationBase:
                 print('speedup =', self._conf.speedup)
             elif event.key == pygame.K_r:
                 if event.mod & pygame.KMOD_SHIFT:
-                    if self._conf.spawn_rate > 0.5:
-                        self._conf.spawn_rate -= 0.5
+                    if self._conf.spawn_rate > 1:
+                        self._conf.spawn_rate -= 1
                 else:
-                    self._conf.spawn_rate += 0.5
+                    self._conf.spawn_rate += 1
                 print('spawn_rate =', self._conf.spawn_rate)
+            elif event.key == pygame.K_m:
+                if event.mod & pygame.KMOD_SHIFT:
+                    self._conf.sound = True
+                else:
+                    self._conf.sound = False
+                print('sound =', self._conf.sound)
