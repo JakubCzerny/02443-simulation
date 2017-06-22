@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import pygame
 class Vehicle:
 
     def __init__(self, lane, position=0.0):
@@ -35,6 +36,9 @@ class Vehicle:
 
             print('WARNING: Emergency speed change -- fix driver behavior in', \
                     self.__class__.__name__)
+
+            scream = pygame.mixer.Sound('wilhem.wav')
+            scream.play()
         else:
             self.position = new_position
             self.velocity = new_velocity
