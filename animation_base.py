@@ -38,7 +38,7 @@ class AnimationBase:
                 h = self._handler_dict[event.key]
                 h.enabled = not h.enabled
                 if h.enabled:
-                    print("Enabled handler", h.__class__.__name__)
+                    print("Enabled handler", h)
                 else:
-                    print("Disabled handler", h.__class__.__name__)
+                    print("Disabled handler", h)
 

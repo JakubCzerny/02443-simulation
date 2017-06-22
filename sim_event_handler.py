@@ -27,6 +27,9 @@ class SimEventHandler:
     def before_vehicle_despawn(self, vehicle):
         pass
 
+    def __str__(self):
+        return self.__class__.__name__
+
 class SlowZoneEvHandler(SimEventHandler):
     """
     Simulation handler that forces cars to go slow down in a certain section of
@@ -43,6 +46,9 @@ class SlowZoneEvHandler(SimEventHandler):
         if self.enabled and vehicle.position > self._start and vehicle.position < self._stop:
             if vehicle.velocity > self._max_velocity:
                 vehicle.acceleration = -3
+
+    def __str__(self):
+        return "{}: max_velocity={}".format(self.__class__.__name__, self._max_velocity)
 
 class StatsEvHandler(SimEventHandler):
     """
@@ -76,7 +82,7 @@ class AverageSpeedHandler(SimEventHandler):
 
     def after_time_step(self, dt, sim_time):
         self.updatecount += 1
-        if self.updatecount > 3: #Only update ever 3. timestep 
+        if self.updatecount > 3: #Only update ever 3. timestep
             if self.numberOfVehicles > 0:
                 self.averageSpeedList.append(self.averageSpeed / self.numberOfVehicles)
                 self.averageSpeed = 0
