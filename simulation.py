@@ -39,9 +39,6 @@ class Simulation:
             if p > 0.9:
                 lane = self._conf.nb_lanes - 1
                 vehicle = Truck(lane)
-                if self.sound:
-                    truckyeah = pygame.mixer.Sound('truckyeah.wav')
-                    truckyeah.play()
             else:
                 lane = np.random.randint(self._conf.nb_lanes)
                 vehicle = Car(lane)
@@ -68,6 +65,9 @@ class Simulation:
 
             # Spawn the car.
             self._container.spawn(vehicle)
+            if isinstance(vehicle, Truck) and self.sound:
+                    truckyeah = pygame.mixer.Sound('truckyeah.wav')
+                    truckyeah.play()
 
             # Find time to next car.
             self._time_to_next_spawn = self._sim_time + \
