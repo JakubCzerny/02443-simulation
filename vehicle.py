@@ -296,3 +296,85 @@ class Truck(HumanVehicle):
 
     def calc_acceleration(self, conf, af, vf, df):
         return super().calc_acceleration(conf, af, vf, df)
+
+
+class AutomaticCar(HumanVehicle):
+
+    def __init__(self, lane, position=0.0):
+        self.HV_K    = 1.4  # AUTOMATIC CAR!
+        self.HV_K1   = 3.0  # scaling factors on safety distance ds to separate space to...
+        self.HV_K2   = 1.8  # ... car in front into behavioral zones.
+        self.HV_K3   = 1.1  # AUTOMATIC CAR
+        self.HV_A0   = 1.0  # small constant acceleration to reach desired velocity
+        self.HV_L    = 10  # no idea what this is
+        self.HV_L2    = 50  # no idea what this is
+        self.HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
+        self.HV_BRAKING = 9.0
+        self.length = 4.0
+        self.extremely_safe_distance = 4.0     # meter
+        self.safe_distance = self.extremely_safe_distance
+        self.type = 'tesla'
+
+        super().__init__(lane, position)
+
+        self.desired_velocity = np.random.uniform(30.0, 35.0)
+        self.safe_time = 0.9 # seconds, 7m/(30m/s) = 0.23333... s
+        self.epsilon = np.random.uniform(2.0, 10.0) # sensitivity to speed up
+        self.animlane = self.lane
+        self.last_lane_change = time.time()
+
+    def update(self, conf, container, dt):
+        super().update(conf, container, dt)
+
+    def prob_left(self, container, conf, af, vf, df, dlf, vlf, dlb, vlb):
+        return super().prob_left(container, conf, af, vf, df, dlf, vlf, dlb, vlb)
+
+    def prob_right(self, container, conf, df, vf, db, vrf, drf, vrb, drb):
+        return super().prob_right(container, conf, df, vf, db, vrf, drf, vrb, drb)
+
+    def calc_acceleration(self, conf, af, vf, df):
+
+        # acceleration zone
+        if (df is None or (df >= self.HV_K1*self.safe_distance)):
+            if self.desired_velocity - self.velocity == 0:
+                a = 0
+            elif self.desired_velocity - self.velocity < self.epsilon:
+                a = self.HV_A0
+            else:
+                a = min(self.HV_AMAX, (self.desired_velocity - self.velocity) / (self.velocity+0.01) * self.HV_L * self.HV_AMAX)
+        # adaptive zone
+        elif (df < self.HV_K1*self.safe_distance) and (df > self.HV_K2*self.safe_distance):
+            if self.velocity > vf:
+                a = max(-self.HV_BRAKING, (vf - self.velocity) / (vf+0.01) * self.HV_L * self.HV_BRAKING)
+            else:
+                if self.desired_velocity - self.velocity == 0:
+                    a = 0
+                elif self.desired_velocity - self.velocity < self.epsilon:
+                    a = self.HV_A0
+                else:
+                    a = min(self.HV_AMAX, (vf - self.velocity) / (vf+0.01) * self.HV_L * self.HV_AMAX)
+        # lock-in zone
+        elif (df < self.HV_K2*self.safe_distance) and (df > self.HV_K3*self.safe_distance) and (np.absolute(vf - self.desired_velocity) < 2):
+            if np.absolute(self.velocity - vf < 1):
+                self.velocity = vf
+                if self.safe_distance > 2:
+                    self.safe_distance -= 1
+            else:
+                a = min(self.HV_AMAX, (vf - self.velocity) / (self.velocity+0.001) * self.HV_L2 * self.HV_AMAX)
+        # braking zone
+        else:
+            if df < self.HV_K*self.safe_distance and (af and af < self.acceleration):
+                a = -self.HV_BRAKING
+            elif self.velocity > vf:
+                a = max(-self.HV_BRAKING, -(self.HV_BRAKING / self.safe_distance * df - self.HV_BRAKING)) # always negative
+            else: # try these one at a time and see what works best!
+                # a = 0 # option 1
+                # a = small number # option 2
+                a = -0.1
+                # a = -(-self.HV_AMAX / self.safe_distance * df + self.HV_AMAX) * (self.safe_distance-df)/self.HV_Dself.HV_D   # option 3
+        # print("self.velocity: {}".format(self.velocity))
+        # print("self.safe_time: {}".format(self.safe_time))
+        # print("self.safe_distance: {}".format(self.safe_distance))
+        # print("self.velocity * self.safe_time: {}".format(self.velocity * self.safe_time))
+
+        return a
