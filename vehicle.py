@@ -203,7 +203,7 @@ class Car(HumanVehicle):
         self.HV_K1   = 2.5  # scaling factors on safety distance ds to separate space to...
         self.HV_K2   = 1.8  # ... car in front into behavioral zones.
         self.HV_A0   = 1.0  # small constant acceleration to reach desired velocity
-        self.HV_L    = 1.0  # no idea what this is
+        self.HV_L    = np.random.uniform(1, 20)  # no idea what this is
         self.HV_AMAX = np.random.uniform(2.5, 4)  # maximum acceleration (0-100 in about 7 seconds)
         self.HV_BRAKING = 9.0
         self.extremely_safe_distance = 3     # meter
