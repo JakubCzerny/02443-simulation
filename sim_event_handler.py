@@ -106,8 +106,8 @@ class AverageSpeedHandler(SimEventHandler):
         plt.grid()
 
         
-        plt.xlabel("Time [s]")
-        plt.ylabel("Average speed of cars [m/s]")
-        plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize))
+        plt.xlabel("Time [s]", fontsize = 23)
+        plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
+        plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
+        plt.rcParams.update({'font.size': 45})
         plt.show()
-        print(len(self.simTimeList))
