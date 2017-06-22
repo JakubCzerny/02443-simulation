@@ -48,13 +48,13 @@ def start_sim():
     sim.add_handler(throughput)
 
     slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
-    slow_zone1.enabled = False   # disabled by default, enable by pressing S
+    slow_zone1.enabled = False   # disabled by default, enable by pressing O
     sim.add_handler(slow_zone1)
-    anim.register_interactive_sim_handler(slow_zone1, pygame.K_s)
+    anim.register_interactive_sim_handler(slow_zone1, pygame.K_o)
     slow_zone2 = SlowZoneEvHandler(300, 450, max_velocity=0)
-    slow_zone2.enabled = False   # disabled by default, enable by pressing T
+    slow_zone2.enabled = False   # disabled by default, enable by pressing P
     sim.add_handler(slow_zone2)
-    anim.register_interactive_sim_handler(slow_zone2, pygame.K_t)
+    anim.register_interactive_sim_handler(slow_zone2, pygame.K_p)
 
     try:
         while True:

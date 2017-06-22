@@ -26,6 +26,9 @@ class SimEventHandler:
     def after_vehicle_update(self, dt, vehicle):
         pass
 
+    def after_vehicle_spawn(self, vehicle):
+        pass
+
     def before_vehicle_despawn(self, vehicle):
         pass
 
@@ -146,3 +149,8 @@ class ThroughPutHandler(SimEventHandler):
         plt.ylabel("Throughput [vehicles/{}s]".format(self.interval), fontsize = 23)
         plt.plot(np.linspace(0, self.max_time, len(self.nb_vehicles_list)), self.nb_vehicles_list)
         plt.show()
+
+class TravelTimeHandler(SimEventHandler):
+
+    def __init__(self):
+        pass
