@@ -71,6 +71,9 @@ class StatsEvHandler(SimEventHandler):
 
 class AverageSpeedHandler(SimEventHandler):
 
+    """
+    Tracks the average speed of the vehicles. 
+    """
     def __init__(self):
         self.averageSpeed = 0
         self.numberOfVehicles = 0
@@ -109,5 +112,4 @@ class AverageSpeedHandler(SimEventHandler):
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
         plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
-        plt.rcParams.update({'font.size': 45})
         plt.show()
