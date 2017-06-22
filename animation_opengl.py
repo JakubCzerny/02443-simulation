@@ -114,9 +114,9 @@ class Animation(AnimationBase):
             glColor3f(0.05, 0.4, 0.4)
 
         if isinstance(v, Car):
-            self._draw_rect(xc, yc, 4, 2)
+            self._draw_rect(xc, yc, v.length, 2)
         elif isinstance(v, Truck):
-            self._draw_rect(xc, yc, 15, 2)
+            self._draw_rect(xc, yc, v.length, 2)
 
 
         glColor3f(0.0, 0.0, 0.0)
