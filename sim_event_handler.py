@@ -10,6 +10,7 @@ class SimEventHandler:
     """
 
     _sim = None
+    enabled = True
 
     def before_time_step(self, dt):
         pass
@@ -39,7 +40,7 @@ class SlowZoneEvHandler(SimEventHandler):
         self._max_velocity = max_velocity
 
     def after_vehicle_update(self, dt, vehicle):
-        if vehicle.position > self._start and vehicle.position < self._stop:
+        if self.enabled and vehicle.position > self._start and vehicle.position < self._stop:
             if vehicle.velocity > self._max_velocity:
                 vehicle.acceleration = -3
 
