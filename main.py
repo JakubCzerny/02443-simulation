@@ -21,7 +21,7 @@ class Config:
     rows = 3               # number of wrapped roads vertically
     window_width = 1800
 
-    sound = True
+    sound = False
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
