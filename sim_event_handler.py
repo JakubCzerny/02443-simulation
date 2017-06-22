@@ -41,11 +41,12 @@ class SlowZoneEvHandler(SimEventHandler):
         self._start = start
         self._stop = stop
         self._max_velocity = max_velocity
+        self._acc = -3
 
     def after_vehicle_update(self, dt, vehicle):
         if self.enabled and vehicle.position > self._start and vehicle.position < self._stop:
-            if vehicle.velocity > self._max_velocity:
-                vehicle.acceleration = -3
+            if vehicle.velocity > self._max_velocity and vehicle.acceleration > self._acc:
+                vehicle.acceleration = self._acc
 
     def __str__(self):
         return "{}: max_velocity={}".format(self.__class__.__name__, self._max_velocity)
