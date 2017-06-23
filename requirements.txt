@@ -1,0 +1,6 @@
+pandas==0.20.2
+matplotlib==2.0.0
+pygame==1.9.3
+sortedcontainers==1.5.7
+numpy==1.12.1
+PyOpenGL==3.1.1a1
