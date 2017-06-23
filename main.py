@@ -16,7 +16,7 @@ class Config:
     fps = 60
     nb_lanes = 3
     road_len = 600          # meter
-    spawn_rate = 5.0        # cars per second
+    spawn_rate = 10.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
 
     speedup = 1             # int speed up factor: 1 sec in anim = speedup sec in sim
@@ -55,7 +55,7 @@ def start_sim():
     slow_zone1.enabled = False   # disabled by default, enable by pressing O
     sim.add_handler(slow_zone1)
     anim.register_interactive_sim_handler(slow_zone1, pygame.K_o)
-    slow_zone2 = SlowZoneEvHandler(300, 450, max_velocity=0)
+    slow_zone2 = SlowZoneEvHandler(400, 500, max_velocity=0)
     slow_zone2.enabled = False   # disabled by default, enable by pressing P
     sim.add_handler(slow_zone2)
     anim.register_interactive_sim_handler(slow_zone2, pygame.K_p)
@@ -73,13 +73,15 @@ def start_sim():
 
     print(stats)
     plt.figure()
-    ax1 = plt.subplot(4,1,1)
+    ax1 = plt.subplot(3,1,1)
     avgspeed.plot(subplot = True)
-    plt.subplot(4,1,2, sharex = ax1)
+    #plt.subplot(4,1,2, sharex = ax1)
+    #slow_zone2.plot(subplot = True)
+    plt.subplot(3,1,2, sharex = ax1)
     throughput.plot(subplot = True)
-    plt.subplot(4,1,3, sharex = ax1)
-    traveltime.plot(subplot = True)
-    plt.subplot(4,1,4, sharex = ax1)
+    #plt.subplot(4,1,3, sharex = ax1)
+    #traveltime.plot(subplot = True)
+    plt.subplot(3,1,3, sharex = ax1)
     vehicle_count.plot(subplot = True)
     plt.show()
 
