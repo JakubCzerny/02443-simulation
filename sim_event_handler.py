@@ -99,25 +99,27 @@ class AverageSpeedHandler(SimEventHandler):
                 self.simTimeList.append(sim_time)
             self.updatecount = 0
 
-    def plot(self):
+    def plot(self, subplot = False):
         windowSize = 5
         speed = pd.DataFrame(self.averageSpeedList)
         r = speed.rolling(window = windowSize) # Average last 10 values
         r = r.mean()
         time = pd.DataFrame(self.simTimeList)
 
-        plt.figure()
+        if not subplot:
+            plt.figure()
 
         #plt.plot(self.simTimeList,speed, linewidth = 2)
-        plt.plot(self.simTimeList,r, linewidth = 4)
+        plt.plot(self.simTimeList[3:],r[3:], linewidth = 4)
         plt.grid()
 
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Average speed of cars [m/s]", fontsize = 23)
         plt.title("Average speed of cars as function of time, rolling window = {}".format(windowSize),fontsize = 30)
         #plt.rcParams.update({'font.size': 45})
-        plt.show()
-        print(len(self.simTimeList))
+        if not subplot:
+            plt.show()
+        #print(len(self.simTimeList))
 
 class ThroughPutHandler(SimEventHandler):
 
@@ -136,7 +138,7 @@ class ThroughPutHandler(SimEventHandler):
             self.nb_vehicles = 0
             self.max_time = sim_time
 
-    def plot(self):
+    def plot(self, subplot = False):
         if len(self.nb_vehicles_list) == 0:
             return
 
@@ -144,11 +146,15 @@ class ThroughPutHandler(SimEventHandler):
                 np.mean(self.nb_vehicles_list),
                 np.min(self.nb_vehicles_list),
                 np.max(self.nb_vehicles_list))
-        plt.figure()
+
+        if not subplot:
+            plt.figure()
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Throughput [vehicles/{}s]".format(self.interval), fontsize = 23)
         plt.plot(np.linspace(0, self.max_time, len(self.nb_vehicles_list)), self.nb_vehicles_list)
-        plt.show()
+        plt.grid()
+        if not subplot:
+            plt.show()
 
 class TravelTimeHandler(SimEventHandler):
 
@@ -162,7 +168,7 @@ class TravelTimeHandler(SimEventHandler):
         p = self.dict[vehicle]
         self.dict[vehicle] = (p[0], sim_time - p[0])
 
-    def plot(self):
+    def plot(self, subplot = False):
         times = []
         travel_times = []
 
@@ -180,11 +186,20 @@ class TravelTimeHandler(SimEventHandler):
                 np.min(travel_times),
                 np.max(travel_times))
 
-        plt.figure()
+        if not subplot:
+            plt.figure()
+
+        times = np.array(times)
+        travel_times = np.array(travel_times)
+        indicies = np.argsort(times)
+        times = times[indicies]
+        travel_times = travel_times[indicies]
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Travel time [s]", fontsize = 23)
         plt.plot(times, travel_times)
-        plt.show()
+        plt.grid()
+        if not subplot:
+            plt.show()
 
 class VehicleCountHandler(SimEventHandler):
 
@@ -201,14 +216,18 @@ class VehicleCountHandler(SimEventHandler):
         self.counts.append(self.count)
         self.count = 0
 
-    def plot(self):
+    def plot(self, subplot = False):
         if len(self.counts) == 0:
             return
 
         x = np.linspace(0, self.max_time, len(self.counts))
 
-        plt.figure()
+        if not subplot:
+            plt.figure()
+
         plt.plot(x, self.counts)
         plt.xlabel("Time [s]", fontsize = 23)
         plt.ylabel("Number of vehicles on the road", fontsize = 23)
-        plt.show()
+        plt.grid()
+        if not subplot:
+            plt.show()

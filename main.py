@@ -72,10 +72,16 @@ def start_sim():
         anim.destroy()
 
     print(stats)
-    avgspeed.plot()
-    throughput.plot()
-    traveltime.plot()
-    vehicle_count.plot()
+    plt.figure()
+    ax1 = plt.subplot(4,1,1)
+    avgspeed.plot(subplot = True)
+    plt.subplot(4,1,2, sharex = ax1)
+    throughput.plot(subplot = True)
+    plt.subplot(4,1,3, sharex = ax1)
+    traveltime.plot(subplot = True)
+    plt.subplot(4,1,4, sharex = ax1)
+    vehicle_count.plot(subplot = True)
+    plt.show()
 
 if __name__ == "__main__":
     start_sim()
