@@ -23,3 +23,6 @@
 `visualisation.py`: pygame base file for setting up the board and doing events
 
 `viz.py`: Old visualisation file that has logic within the visualisation itself, look at it for inspiration, uses pygames sprites
+
+## Some design document:
+https://hackmd.io/CYdgLAHAbF4LQFYBMAjApnMBOKY4qRAGM4JoAzEKCLCIgZgEYg
