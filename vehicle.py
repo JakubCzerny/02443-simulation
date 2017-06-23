@@ -174,15 +174,11 @@ class HumanVehicle(Vehicle):
     def prob_right(self, container, conf, df, vf, db, vrf, drf, vrb, drb):
         p = 0
 
-        if (vrf is None or self.velocity < self.epsilon) \
+        if (vrf is None or (self.velocity - vrf < self.epsilon or drf > self.HV_K*self.safe_distance)) \
             and self._enough_room(container, ('right','front')) \
-            and self._enough_room(container, ('right','back')) \
-            and (vrf is None or (self.velocity <= vrf or drf > self.HV_K1*self.safe_distance)):
+            and self._enough_room(container, ('right','back')):
 
-            if df:
-                p = 1-np.sqrt(self.safe_distance/df)
-            else:
-                p = 0.8
+            p = 0.9
 
         return p
 
