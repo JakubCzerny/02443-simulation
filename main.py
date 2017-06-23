@@ -16,7 +16,7 @@ class Config:
     fps = 60
     nb_lanes = 3
     road_len = 600          # meter
-    spawn_rate = 10.0        # cars per second
+    spawn_rate = 3.0        # cars per second
     speed_range = (25, 35)  # (min, max) speed in meter/sec
 
     speedup = 1             # int speed up factor: 1 sec in anim = speedup sec in sim
