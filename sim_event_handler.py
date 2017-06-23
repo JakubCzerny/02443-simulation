@@ -181,6 +181,8 @@ class TravelTimeHandler(SimEventHandler):
                 np.max(travel_times))
 
         plt.figure()
+        plt.xlabel("Time [s]", fontsize = 23)
+        plt.ylabel("Travel time [s]".format(self.interval), fontsize = 23)
         plt.plot(times, travel_times)
         plt.show()
 
@@ -207,4 +209,6 @@ class VehicleCountHandler(SimEventHandler):
 
         plt.figure()
         plt.plot(x, self.counts)
+        plt.xlabel("Time [s]", fontsize = 23)
+        plt.ylabel("Number of vehicles on the road".format(self.interval), fontsize = 23)
         plt.show()
