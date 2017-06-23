@@ -26,7 +26,7 @@ class Config:
     rows = 3                # number of wrapped roads vertically
     window_width = 1800
 
-    sound = True
+    sound = False
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
@@ -46,8 +46,10 @@ def start_sim():
     sim.add_handler(avgspeed)
     throughput = ThroughPutHandler()
     sim.add_handler(throughput)
-    traveltime = TravelTimeHandler(sim)
+    traveltime = TravelTimeHandler()
     sim.add_handler(traveltime)
+    vehicle_count = VehicleCountHandler()
+    sim.add_handler(vehicle_count)
 
     slow_zone1 = SlowZoneEvHandler(300, 450, max_velocity=7)
     slow_zone1.enabled = False   # disabled by default, enable by pressing O
@@ -70,9 +72,10 @@ def start_sim():
         anim.destroy()
 
     print(stats)
-    #avgspeed.plot()
-    #throughput.plot()
-    #traveltime.plot()
+    avgspeed.plot()
+    throughput.plot()
+    traveltime.plot()
+    vehicle_count.plot()
 
 if __name__ == "__main__":
     start_sim()

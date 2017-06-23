@@ -26,10 +26,10 @@ class SimEventHandler:
     def after_vehicle_update(self, dt, vehicle):
         pass
 
-    def after_vehicle_spawn(self, vehicle):
+    def after_vehicle_spawn(self, vehicle, sim_time):
         pass
 
-    def before_vehicle_despawn(self, vehicle):
+    def before_vehicle_despawn(self, vehicle, sim_time):
         pass
 
     def __str__(self):
@@ -64,7 +64,7 @@ class StatsEvHandler(SimEventHandler):
     def __init__(self):
         self.unspawned_count = 0
 
-    def before_vehicle_despawn(self, vehicle):
+    def before_vehicle_despawn(self, vehicle, sim_time):
         self.unspawned_count += 1
 
     def __str__(self):
@@ -127,7 +127,7 @@ class ThroughPutHandler(SimEventHandler):
         self.interval = 30 # seconds
         self.max_time = 0
 
-    def before_vehicle_despawn(self, vehicle):
+    def before_vehicle_despawn(self, vehicle, sim_time):
         self.nb_vehicles += 1
 
     def after_time_step(self, dt, sim_time):
@@ -152,22 +152,22 @@ class ThroughPutHandler(SimEventHandler):
 
 class TravelTimeHandler(SimEventHandler):
 
-    def __init__(self, sim):
-        self._sim = sim
-        self._dict = {}
+    def __init__(self):
+        self.dict = {}
 
-    def after_vehicle_spawn(self, vehicle):
-        self._dict[vehicle] = (self._sim._sim_time, 0)
+    def after_vehicle_spawn(self, vehicle, sim_time):
+        self.dict[vehicle] = (sim_time, 0)
 
-    def before_vehicle_despawn(self, vehicle):
-        p = self._dict[vehicle]
-        self._dict[vehicle] = (p[0], self._sim._sim_time - p[0])
+    def before_vehicle_despawn(self, vehicle, sim_time):
+        p = self.dict[vehicle]
+        self.dict[vehicle] = (p[0], sim_time - p[0])
+
     def plot(self):
         times = []
         travel_times = []
 
-        for k in self._dict:
-            p = self._dict[k]
+        for k in self.dict:
+            p = self.dict[k]
             if p[1] != 0:
                 times.append(p[0])
                 travel_times.append(p[1])
@@ -182,4 +182,29 @@ class TravelTimeHandler(SimEventHandler):
 
         plt.figure()
         plt.plot(times, travel_times)
+        plt.show()
+
+class VehicleCountHandler(SimEventHandler):
+
+    def __init__(self):
+        self.count = 0
+        self.counts = []
+        self.max_time = 0
+
+    def before_vehicle_update(self, dt, vehicle):
+        self.count += 1
+
+    def after_time_step(self, dt, sim_time):
+        self.max_time = sim_time
+        self.counts.append(self.count)
+        self.count = 0
+
+    def plot(self):
+        if len(self.counts) == 0:
+            return
+
+        x = np.linspace(0, self.max_time, len(self.counts))
+
+        plt.figure()
+        plt.plot(x, self.counts)
         plt.show()

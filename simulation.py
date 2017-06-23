@@ -131,10 +131,10 @@ class SimulationWithHandlers(Simulation):
         super()._spawn_vehicle(vehicle)
 
         for h in self._handlers:
-            h.after_vehicle_spawn(vehicle)
+            h.after_vehicle_spawn(vehicle, self._sim_time)
 
     def _despawn_vehicle(self, vehicle):
         for h in self._handlers:
-            h.before_vehicle_despawn(vehicle)
+            h.before_vehicle_despawn(vehicle, self._sim_time)
 
         super()._despawn_vehicle(vehicle)
