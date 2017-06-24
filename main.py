@@ -26,7 +26,7 @@ class Config:
     rows = 3                # number of wrapped roads vertically
     window_width = 1800
 
-    sound = False
+    sound = True
 
     # Non-OpenGL animation specific configuration
     #window_height = 500
@@ -73,15 +73,15 @@ def start_sim():
 
     print(stats)
     plt.figure()
-    ax1 = plt.subplot(3,1,1)
+    ax1 = plt.subplot(5,1,1)
     avgspeed.plot(subplot = True)
-    #plt.subplot(4,1,2, sharex = ax1)
-    #slow_zone2.plot(subplot = True)
-    plt.subplot(3,1,2, sharex = ax1)
+    plt.subplot(5,1,2, sharex = ax1)
+    slow_zone2.plot(subplot = True)
+    plt.subplot(5,1,3, sharex = ax1)
     throughput.plot(subplot = True)
-    #plt.subplot(4,1,3, sharex = ax1)
-    #traveltime.plot(subplot = True)
-    plt.subplot(3,1,3, sharex = ax1)
+    plt.subplot(5,1,4, sharex = ax1)
+    traveltime.plot(subplot = True)
+    plt.subplot(5,1,5, sharex = ax1)
     vehicle_count.plot(subplot = True)
     plt.show()
 
